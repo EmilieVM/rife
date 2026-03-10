@@ -106,29 +106,44 @@
         });
 
         function playTone(freq) {
-            stopAllTones(); // Stop existing sound before starting new one
+            let activeOscillator = null;
+        let activeGain = null; // We need this to be global to change volume live
+        let audioCtx = null;
+
+        // ... keep your loadData and renderResults functions the same ...
+
+        // NEW: Add an event listener to the slider to update volume in real-time
+        volumeControl.addEventListener('input', (e) => {
+            const newVolume = parseFloat(e.target.value);
+            if (activeGain && audioCtx) {
+                // This tells the "amp" to change volume immediately
+                activeGain.gain.setTargetAtTime(newVolume, audioCtx.currentTime, 0.05);
+            }
+        });
+
+        function playTone(freq) {
+            stopAllTones(); 
             
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             
             activeOscillator = audioCtx.createOscillator();
-            activeGain = audioCtx.createGain();
+            activeGain = audioCtx.createGain(); // This is our "Volume Knob"
 
             activeOscillator.type = 'sine';
             activeOscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
-            // Use volume from the slider
-            const volume = parseFloat(volumeControl.value);
-            activeGain.gain.setValueAtTime(volume, audioCtx.currentTime);
+            // Set initial volume from slider
+            const startVolume = parseFloat(volumeControl.value);
+            activeGain.gain.setValueAtTime(startVolume, audioCtx.currentTime);
 
             activeOscillator.connect(activeGain);
             activeGain.connect(audioCtx.destination);
 
             activeOscillator.start();
 
-            // Set duration based on dropdown
             const duration = parseInt(durationControl.value);
             if (duration > 0) {
-                // Fade out at the end
+                // Fade out slightly at the very end of the duration
                 activeGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
                 activeOscillator.stop(audioCtx.currentTime + duration);
             }
@@ -136,13 +151,10 @@
 
         function stopAllTones() {
             if (activeOscillator) {
-                activeOscillator.stop();
+                try {
+                    activeOscillator.stop();
+                } catch(e) {}
                 activeOscillator.disconnect();
                 activeOscillator = null;
             }
         }
-
-        loadData();
-    </script>
-</body>
-</html>
