@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rife Frequency Finder</title>
+    <title>Rife Frequency Finder v2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .frequency-card { transition: all 0.2s ease; }
         .frequency-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
         
+        /* Emerald Highlight for Active Tone */
         .btn-active { 
             background-color: #10b981 !important; 
             color: white !important;
@@ -16,7 +17,7 @@
             box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
         }
 
-        /* Dark Mode Core */
+        /* Dark Mode Core Styles */
         body.dark-mode { background-color: #0f172a; color: #f8fafc; }
         .dark-mode .bg-white { background-color: #1e293b !important; color: #f8fafc; border-color: #334155; }
         .dark-mode .text-slate-800 { color: #f1f5f9; }
@@ -25,7 +26,7 @@
         .dark-mode .bg-indigo-50 { background-color: #312e81; color: #e0e7ff; border-color: #4338ca; }
         .dark-mode header { background-color: #1e1b4b; }
         
-        /* High Contrast History Buttons (Dark Mode) */
+        /* High Contrast History Pills (Dark Mode) */
         .dark-mode .history-pill { 
             background-color: #312e81; 
             color: #c7d2fe; 
@@ -41,7 +42,7 @@
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div>
                 <h1 class="text-4xl font-extrabold tracking-tight">Rife Frequency Finder</h1>
-                <p class="mt-2 text-indigo-100 text-lg">Tone Generator & Search</p>
+                <p class="mt-2 text-indigo-100 text-lg">Precision Tone Generator</p>
             </div>
             <button onclick="toggleDarkMode()" class="p-3 rounded-full bg-indigo-800 hover:bg-indigo-700 border border-indigo-500 transition-all shadow-lg">
                 <span id="darkIcon">🌙</span>
@@ -58,7 +59,7 @@
         <div class="flex items-center justify-between mb-6 px-1">
             <div id="historyContainer" class="flex flex-wrap gap-2"></div>
             <button onclick="clearHistory()" id="clearHistoryBtn" class="hidden text-xs font-bold text-slate-400 hover:text-red-500 uppercase tracking-widest ml-4 transition-colors">
-                Clear ×
+                Clear History ×
             </button>
         </div>
 
@@ -84,7 +85,7 @@
         </div>
 
         <div id="results" class="grid gap-6">
-            <div class="text-center py-20 text-slate-400 font-medium">Loading database...</div>
+            <div class="text-center py-20 text-slate-400 font-medium italic">Connecting to database...</div>
         </div>
     </main>
 
@@ -103,6 +104,7 @@
         const historyContainer = document.getElementById('historyContainer');
         const clearBtn = document.getElementById('clearHistoryBtn');
 
+        // Theme Toggle
         function toggleDarkMode() {
             const isDark = document.body.classList.toggle('dark-mode');
             document.getElementById('darkIcon').innerText = isDark ? '☀️' : '🌙';
@@ -114,8 +116,150 @@
             document.getElementById('darkIcon').innerText = '☀️';
         }
 
+        // History UI
         function updateHistoryUI() {
             if (searchHistory.length > 0) {
                 clearBtn.classList.remove('hidden');
                 historyContainer.innerHTML = searchHistory.map(term => `
-                    <button onclick="applySearch('${term}')" class="history-pill px-4 py-1.5 bg-slate-200 rounded
+                    <button onclick="applySearch('${term}')" class="history-pill px-4 py-1.5 bg-slate-200 rounded-full text-[11px] font-bold shadow-sm transition-all hover:scale-105">
+                        ${term}
+                    </button>
+                `).join('');
+            } else {
+                clearBtn.classList.add('hidden');
+                historyContainer.innerHTML = '';
+            }
+        }
+
+        function clearHistory() {
+            searchHistory = [];
+            localStorage.removeItem('searchHistory');
+            updateHistoryUI();
+        }
+
+        function applySearch(term) {
+            searchInput.value = term;
+            performSearch(term, false);
+        }
+
+        function performSearch(term, shouldSave = true) {
+            const lowerTerm = term.toLowerCase();
+            const filtered = frequenciesData.filter(item => 
+                item.name.toLowerCase().includes(lowerTerm) || 
+                (item.keywords && item.keywords.some(k => k.toLowerCase().includes(lowerTerm)))
+            );
+            renderResults(filtered);
+            if (shouldSave && term.trim().length > 2 && !searchHistory.includes(term.trim())) {
+                searchHistory.unshift(term.trim());
+                searchHistory = searchHistory.slice(0, 6);
+                localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+                updateHistoryUI();
+            }
+        }
+
+        // Live Volume Listener
+        volumeControl.addEventListener('input', (e) => {
+            if (activeGain && audioCtx) {
+                activeGain.gain.setTargetAtTime(parseFloat(e.target.value), audioCtx.currentTime, 0.05);
+            }
+        });
+
+        // Load Data - Simplified Path for Compatibility
+        async function loadData() {
+            try {
+                const response = await fetch('frequencies.json');
+                if (!response.ok) throw new Error('Network response was not ok');
+                frequenciesData = await response.json();
+                renderResults(frequenciesData);
+                updateHistoryUI();
+            } catch (err) {
+                console.error("Database Error:", err);
+                resultsContainer.innerHTML = `
+                    <div class="p-8 text-red-500 bg-red-50 rounded-2xl border border-red-200 text-center">
+                        <p class="font-bold">Error: Could not load frequencies.json.</p>
+                        <p class="text-sm mt-2">Make sure frequencies.json is inside the <strong>public</strong> folder.</p>
+                    </div>`;
+            }
+        }
+
+        function renderResults(data) {
+            resultsContainer.innerHTML = '';
+            if (data.length === 0) {
+                resultsContainer.innerHTML = '<p class="text-center py-10 text-slate-400">No results found.</p>';
+                return;
+            }
+            data.slice(0, 100).forEach((item, itemIdx) => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-2xl border border-slate-200 frequency-card";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <h2 class="text-2xl font-bold text-slate-800">${item.name}</h2>
+                        <span class="text-[10px] font-black px-2 py-1 bg-slate-100 text-slate-500 rounded-full border border-slate-200 uppercase">${item.source}</span>
+                    </div>
+                    <p class="text-slate-500 italic mb-5 leading-relaxed text-sm">${item.description || ''}</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${item.frequencies.map((f, fIdx) => `
+                            <button id="btn-${itemIdx}-${fIdx}" onclick="playTone(${f}, 'btn-${itemIdx}-${fIdx}')" class="px-5 py-2.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white rounded-xl text-sm font-black border border-indigo-100 transition-all">
+                                ${f} Hz
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+                resultsContainer.appendChild(card);
+            });
+        }
+
+        // Search Debounce logic
+        let searchTimeout;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const term = e.target.value;
+            performSearch(term, false);
+            searchTimeout = setTimeout(() => {
+                if(term.trim().length > 2) performSearch(term.trim(), true);
+            }, 1200);
+        });
+
+        // Tone Engine
+        function playTone(freq, btnId) {
+            stopAllTones();
+            const clickedBtn = document.getElementById(btnId);
+            if (clickedBtn) {
+                clickedBtn.classList.add('btn-active');
+                currentlyPlayingBtn = clickedBtn;
+            }
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            activeOscillator = audioCtx.createOscillator();
+            activeGain = audioCtx.createGain();
+            activeOscillator.type = 'sine';
+            activeOscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            activeGain.gain.setValueAtTime(parseFloat(volumeControl.value), audioCtx.currentTime);
+            activeOscillator.connect(activeGain);
+            activeGain.connect(audioCtx.destination);
+            activeOscillator.start();
+            
+            const d = parseInt(durationControl.value);
+            if (d > 0) {
+                activeGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + d);
+                activeOscillator.stop(audioCtx.currentTime + d);
+                setTimeout(() => { if (currentlyPlayingBtn === clickedBtn) stopAllTones(); }, d * 1000);
+            }
+        }
+
+        function stopAllTones() {
+            if (currentlyPlayingBtn) {
+                currentlyPlayingBtn.classList.remove('btn-active');
+                currentlyPlayingBtn = null;
+            }
+            if (activeOscillator) {
+                try { activeOscillator.stop(); } catch(e) {}
+                activeOscillator.disconnect();
+                activeOscillator = null;
+                activeGain = null;
+            }
+        }
+        
+        loadData();
+    </script>
+</body>
+</html>
