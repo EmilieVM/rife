@@ -13,17 +13,27 @@
             background-color: #10b981 !important; 
             color: white !important;
             border-color: #059669 !important;
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
         }
 
+        /* Dark Mode Core */
         body.dark-mode { background-color: #0f172a; color: #f8fafc; }
         .dark-mode .bg-white { background-color: #1e293b !important; color: #f8fafc; border-color: #334155; }
         .dark-mode .text-slate-800 { color: #f1f5f9; }
         .dark-mode .text-slate-500 { color: #94a3b8; }
-        .dark-mode input, .dark-mode select { background-color: #334155; color: white; border: 1px solid #475569; }
+        .dark-mode input, .dark-mode select { background-color: #0f172a; color: white; border: 1px solid #475569; }
         .dark-mode .bg-indigo-50 { background-color: #312e81; color: #e0e7ff; border-color: #4338ca; }
         .dark-mode header { background-color: #1e1b4b; }
-        .dark-mode .btn-active { background-color: #6366f1 !important; border-color: #4f46e5 !important; }
+        
+        /* High Contrast History Buttons (Dark Mode) */
+        .dark-mode .history-pill { 
+            background-color: #312e81; 
+            color: #c7d2fe; 
+            border: 1px solid #4338ca;
+        }
+        .dark-mode .history-pill:hover { background-color: #4338ca; color: white; }
+        
+        .dark-mode .btn-active { background-color: #6366f1 !important; border-color: #818cf8 !important; }
     </style>
 </head>
 <body class="text-slate-900 font-sans transition-colors duration-300">
@@ -34,7 +44,7 @@
                 <h1 class="text-4xl font-extrabold tracking-tight">Rife Frequency Finder</h1>
                 <p class="mt-2 text-indigo-100 text-lg">Tone Generator & Search</p>
             </div>
-            <button onclick="toggleDarkMode()" class="p-3 rounded-full bg-indigo-800 hover:bg-indigo-700 border border-indigo-500 transition-all">
+            <button onclick="toggleDarkMode()" class="p-3 rounded-full bg-indigo-800 hover:bg-indigo-700 border border-indigo-500 transition-all shadow-lg">
                 <span id="darkIcon">🌙</span>
             </button>
         </div>
@@ -42,189 +52,11 @@
 
     <main class="max-w-4xl mx-auto p-6">
         <div class="mb-2">
-            <input type="text" id="searchInput" placeholder="Search conditions (e.g. 'Inflammation', 'Pain')..." 
-                class="w-full p-5 rounded-2xl border-0 shadow-lg focus:ring-4 focus:ring-indigo-500/20 text-xl outline-none">
+            <input type="text" id="searchInput" placeholder="Search conditions (e.g. 'Pain', 'Detox')..." 
+                class="w-full p-5 rounded-2xl border-0 shadow-xl focus:ring-4 focus:ring-indigo-500/20 text-xl outline-none transition-all">
         </div>
 
-        <div id="historyContainer" class="flex flex-wrap gap-2 mb-6 min-h-[32px]">
-            </div>
-
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-8 flex flex-wrap gap-6 items-center">
-            <div class="flex flex-col">
-                <label class="text-xs font-bold text-slate-500 uppercase mb-1">Live Volume</label>
-                <input type="range" id="volumeControl" min="0" max="0.5" step="0.01" value="0.1" class="w-32 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
-            </div>
-            <div class="flex flex-col">
-                <label class="text-xs font-bold text-slate-500 uppercase mb-1">Duration</label>
-                <select id="durationControl" class="bg-slate-50 border border-slate-200 rounded-md p-1 text-sm outline-none">
-                    <option value="0" selected>Continuous</option>
-                    <option value="30">30 Seconds</option>
-                    <option value="60">1 Minute</option>
-                    <option value="600">10 Minutes</option>
-                    <option value="1200">20 Minutes</option>
-                    <option value="1800">30 Minutes</option>
-                </select>
-            </div>
-            <button onclick="stopAllTones()" class="ml-auto bg-red-100 text-red-700 px-4 py-2 rounded-lg font-bold hover:bg-red-600 hover:text-white transition-all">
-                STOP AUDIO
-            </button>
-        </div>
-
-        <div id="results" class="grid gap-6">
-            <div class="text-center py-20 text-slate-400">Loading database...</div>
-        </div>
-    </main>
-
-    <script>
-        let frequenciesData = [];
-        let audioCtx = null;
-        let activeOscillator = null;
-        let activeGain = null;
-        let currentlyPlayingBtn = null;
-        let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
-
-        const resultsContainer = document.getElementById('results');
-        const searchInput = document.getElementById('searchInput');
-        const volumeControl = document.getElementById('volumeControl');
-        const durationControl = document.getElementById('durationControl');
-        const historyContainer = document.getElementById('historyContainer');
-
-        // Dark Mode Logic
-        function toggleDarkMode() {
-            const isDark = document.body.classList.toggle('dark-mode');
-            document.getElementById('darkIcon').innerText = isDark ? '☀️' : '🌙';
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        }
-
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('darkIcon').innerText = '☀️';
-        }
-
-        // Search History Logic
-        function updateHistoryUI() {
-            historyContainer.innerHTML = searchHistory.map(term => `
-                <button onclick="applySearch('${term}')" class="px-3 py-1 bg-slate-200 dark:bg-slate-700 rounded-full text-xs font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors">
-                    ${term}
-                </button>
-            `).join('');
-        }
-
-        function applySearch(term) {
-            searchInput.value = term;
-            performSearch(term);
-        }
-
-        function performSearch(term) {
-            const lowerTerm = term.toLowerCase();
-            const filtered = frequenciesData.filter(item => 
-                item.name.toLowerCase().includes(lowerTerm) || 
-                (item.keywords && item.keywords.some(k => k.toLowerCase().includes(lowerTerm)))
-            );
-            renderResults(filtered);
-
-            if (term.length > 2 && !searchHistory.includes(term)) {
-                searchHistory.unshift(term);
-                searchHistory = searchHistory.slice(0, 8); // Keep last 8
-                localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
-                updateHistoryUI();
-            }
-        }
-
-        // Real-time Volume Adjustment
-        volumeControl.addEventListener('input', (e) => {
-            if (activeGain && audioCtx) {
-                activeGain.gain.setTargetAtTime(parseFloat(e.target.value), audioCtx.currentTime, 0.05);
-            }
-        });
-
-        // Load JSON Data
-        async function loadData() {
-            try {
-                const response = await fetch('./frequencies.json');
-                frequenciesData = await response.json();
-                renderResults(frequenciesData);
-                updateHistoryUI();
-            } catch (err) {
-                resultsContainer.innerHTML = `<div class="p-6 text-red-500">Error: Could not load data.</div>`;
-            }
-        }
-
-        function renderResults(data) {
-            resultsContainer.innerHTML = '';
-            data.slice(0, 100).forEach((item, itemIdx) => {
-                const card = document.createElement('div');
-                card.className = "bg-white p-6 rounded-2xl border border-slate-200 frequency-card";
-                card.innerHTML = `
-                    <div class="flex justify-between items-start mb-3">
-                        <h2 class="text-2xl font-bold text-slate-800">${item.name}</h2>
-                        <span class="text-[10px] font-black px-2 py-1 bg-slate-100 text-slate-500 rounded-full border border-slate-200 uppercase">${item.source}</span>
-                    </div>
-                    <p class="text-slate-500 italic mb-5 leading-relaxed">${item.description || ''}</p>
-                    <div class="flex flex-wrap gap-2">
-                        ${item.frequencies.map((f, fIdx) => `
-                            <button id="btn-${itemIdx}-${fIdx}" onclick="playTone(${f}, 'btn-${itemIdx}-${fIdx}')" class="px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white rounded-lg text-sm font-bold border border-indigo-100 transition-all">
-                                ${f} Hz
-                            </button>
-                        `).join('')}
-                    </div>
-                `;
-                resultsContainer.appendChild(card);
-            });
-        }
-
-        let searchTimeout;
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            const term = e.target.value;
-            performSearch(term);
-            
-            // Wait for user to stop typing before saving to history
-            searchTimeout = setTimeout(() => {
-                if(term.trim()) performSearch(term.trim());
-            }, 1000);
-        });
-
-        function playTone(freq, btnId) {
-            stopAllTones();
-            const clickedBtn = document.getElementById(btnId);
-            if (clickedBtn) {
-                clickedBtn.classList.add('btn-active');
-                currentlyPlayingBtn = clickedBtn;
-            }
-
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            activeOscillator = audioCtx.createOscillator();
-            activeGain = audioCtx.createGain();
-            activeOscillator.type = 'sine';
-            activeOscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            activeGain.gain.setValueAtTime(parseFloat(volumeControl.value), audioCtx.currentTime);
-            activeOscillator.connect(activeGain);
-            activeGain.connect(audioCtx.destination);
-            activeOscillator.start();
-
-            const d = parseInt(durationControl.value);
-            if (d > 0) {
-                activeGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + d);
-                activeOscillator.stop(audioCtx.currentTime + d);
-                setTimeout(() => { if (currentlyPlayingBtn === clickedBtn) stopAllTones(); }, d * 1000);
-            }
-        }
-
-        function stopAllTones() {
-            if (currentlyPlayingBtn) {
-                currentlyPlayingBtn.classList.remove('btn-active');
-                currentlyPlayingBtn = null;
-            }
-            if (activeOscillator) {
-                try { activeOscillator.stop(); } catch(e) {}
-                activeOscillator.disconnect();
-                activeOscillator = null;
-                activeGain = null;
-            }
-        }
-
-        loadData();
-    </script>
-</body>
-</html>
+        <div class="flex items-center justify-between mb-6 px-1">
+            <div id="historyContainer" class="flex flex-wrap gap-2">
+                </div>
+            <button onclick="clearHistory()" id="clearHistoryBtn" class="hidden text-xs font-bold text-slate-40
