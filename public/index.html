@@ -8,171 +8,38 @@
     <style>
         .frequency-card { transition: all 0.2s ease; }
         .frequency-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        body { background-color: #f8fafc; }
+        
+        /* Dark Mode Utility Classes */
+        body.dark-mode { background-color: #0f172a; color: #f8fafc; }
+        .dark-mode header { background-color: #1e1b4b; }
+        .dark-mode .bg-white { background-color: #1e293b !important; color: #f8fafc; border-color: #334155; }
+        .dark-mode .text-slate-800 { color: #f1f5f9; }
+        .dark-mode .text-slate-500 { color: #94a3b8; }
+        .dark-mode input, .dark-mode select { background-color: #334155; color: white; border: 1px solid #475569; }
+        .dark-mode .bg-indigo-50 { background-color: #312e81; color: #e0e7ff; border-color: #4338ca; }
     </style>
 </head>
-<body class="text-slate-900 font-sans">
+<body class="text-slate-900 font-sans transition-colors duration-300">
 
     <header class="bg-indigo-900 text-white p-8 shadow-md">
-        <div class="max-w-4xl mx-auto">
-            <h1 class="text-4xl font-extrabold tracking-tight">Rife Frequency Finder</h1>
-            <p class="mt-2 text-indigo-100 text-lg">Customizable Tone Generator & Search</p>
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-4xl font-extrabold tracking-tight">Rife Frequency Finder</h1>
+                <p class="mt-2 text-indigo-100 text-lg">Customizable Tone Generator & Search</p>
+            </div>
+            <button onclick="toggleDarkMode()" class="p-3 rounded-full bg-indigo-800 hover:bg-indigo-700 border border-indigo-500 transition-all">
+                <span id="darkIcon">🌙</span>
+            </button>
         </div>
     </header>
 
     <main class="max-w-4xl mx-auto p-6">
         
         <div class="mb-6">
-            <input type="text" id="searchInput" placeholder="Search conditions (e.g. 'Inflammation', 'Pain')..." 
+            <input type="text" id="searchInput" placeholder="Search conditions..." 
                 class="w-full p-5 rounded-2xl border-0 shadow-lg focus:ring-4 focus:ring-indigo-500/20 text-xl outline-none">
         </div>
 
         <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-8 flex flex-wrap gap-6 items-center">
             <div class="flex flex-col">
-                <label class="text-xs font-bold text-slate-500 uppercase mb-1">Live Volume</label>
-                <input type="range" id="volumeControl" min="0" max="0.5" step="0.01" value="0.1" class="w-32 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
-            </div>
-            
-            <div class="flex flex-col">
-                <label class="text-xs font-bold text-slate-500 uppercase mb-1">Duration</label>
-                <select id="durationControl" class="bg-slate-50 border border-slate-200 rounded-md p-1 text-sm outline-none">
-                    <option value="0" selected>Continuous</option>
-                    <option value="2">2 Seconds</option>
-                    <option value="5">5 Seconds</option>
-                    <option value="10">10 Seconds</option>
-                    <option value="30">30 Seconds</option>
-                </select>
-            </div>
-
-            <button id="stopButton" onclick="stopAllTones()" class="ml-auto bg-red-100 text-red-700 px-4 py-2 rounded-lg font-bold hover:bg-red-600 hover:text-white transition-all">
-                STOP AUDIO
-            </button>
-        </div>
-
-        <div id="results" class="grid gap-6">
-            <div class="text-center py-20 text-slate-400">Loading database...</div>
-        </div>
-    </main>
-
-    <script>
-        let frequenciesData = [];
-        let audioCtx = null;
-        let activeOscillator = null;
-        let activeGain = null;
-
-        const resultsContainer = document.getElementById('results');
-        const searchInput = document.getElementById('searchInput');
-        const volumeControl = document.getElementById('volumeControl');
-        const durationControl = document.getElementById('durationControl');
-
-        // --- Live Volume Control ---
-        volumeControl.addEventListener('input', (e) => {
-            if (activeGain && audioCtx) {
-                // setTargetAtTime provides a smooth transition when sliding
-                activeGain.gain.setTargetAtTime(parseFloat(e.target.value), audioCtx.currentTime, 0.05);
-            }
-        });
-
-        // --- Data Loading ---
-        async function loadData() {
-            try {
-                const response = await fetch('./frequencies.json');
-                if (!response.ok) throw new Error('Data file not found');
-                frequenciesData = await response.json();
-                renderResults(frequenciesData);
-            } catch (err) {
-                console.error(err);
-                resultsContainer.innerHTML = `
-                    <div class="p-6 text-red-500 bg-red-50 rounded-xl border border-red-200">
-                        <strong>Error:</strong> Could not load frequencies.json. <br>
-                        Verify the file is inside the <strong>public</strong> folder.
-                    </div>`;
-            }
-        }
-
-        // --- UI Rendering ---
-        function renderResults(data) {
-            resultsContainer.innerHTML = '';
-            if (data.length === 0) {
-                resultsContainer.innerHTML = '<p class="text-center text-slate-500 py-10">No matches found. Try another term.</p>';
-                return;
-            }
-
-            data.slice(0, 100).forEach(item => {
-                const card = document.createElement('div');
-                card.className = "bg-white p-6 rounded-2xl border border-slate-200 frequency-card";
-                card.innerHTML = `
-                    <div class="flex justify-between items-start mb-3">
-                        <h2 class="text-2xl font-bold text-slate-800">${item.name}</h2>
-                        <span class="text-[10px] font-black px-2 py-1 bg-slate-100 text-slate-500 rounded-full border border-slate-200 uppercase tracking-tighter">${item.source}</span>
-                    </div>
-                    <p class="text-slate-500 italic mb-5 leading-relaxed">${item.description || ''}</p>
-                    <div class="flex flex-wrap gap-2">
-                        ${item.frequencies.map(f => `
-                            <button onclick="playTone(${f})" class="px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white rounded-lg text-sm font-bold border border-indigo-100 transition-all">
-                                ${f} Hz
-                            </button>
-                        `).join('')}
-                    </div>
-                `;
-                resultsContainer.appendChild(card);
-            });
-        }
-
-        // --- Search Filtering ---
-        searchInput.addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            const filtered = frequenciesData.filter(item => 
-                item.name.toLowerCase().includes(term) || 
-                (item.keywords && item.keywords.some(k => k.toLowerCase().includes(term)))
-            );
-            renderResults(filtered);
-        });
-
-        // --- Audio Engine ---
-        function playTone(freq) {
-            stopAllTones(); // Always clear previous tone before starting new one
-            
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            
-            activeOscillator = audioCtx.createOscillator();
-            activeGain = audioCtx.createGain();
-
-            activeOscillator.type = 'sine';
-            activeOscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
-
-            // Set initial volume from the slider
-            const currentVol = parseFloat(volumeControl.value);
-            activeGain.gain.setValueAtTime(currentVol, audioCtx.currentTime);
-
-            activeOscillator.connect(activeGain);
-            activeGain.connect(audioCtx.destination);
-            
-            activeOscillator.start();
-
-            // Handle Duration
-            const duration = parseInt(durationControl.value);
-            if (duration > 0) {
-                // Smooth fade out before stopping
-                activeGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-                activeOscillator.stop(audioCtx.currentTime + duration);
-            }
-        }
-
-        function stopAllTones() {
-            if (activeOscillator) {
-                try {
-                    activeOscillator.stop();
-                } catch(e) {
-                    // Oscillator already stopped
-                }
-                activeOscillator.disconnect();
-                activeOscillator = null;
-                activeGain = null;
-            }
-        }
-
-        loadData();
-    </script>
-</body>
-</html>
+                <label class="text-xs
