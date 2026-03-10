@@ -21,8 +21,9 @@
     </header>
 
     <main class="max-w-4xl mx-auto p-6">
+        
         <div class="mb-6">
-            <input type="text" id="searchInput" placeholder="Search conditions..." 
+            <input type="text" id="searchInput" placeholder="Search conditions (e.g. 'Inflammation', 'Pain')..." 
                 class="w-full p-5 rounded-2xl border-0 shadow-lg focus:ring-4 focus:ring-indigo-500/20 text-xl outline-none">
         </div>
 
@@ -31,16 +32,18 @@
                 <label class="text-xs font-bold text-slate-500 uppercase mb-1">Live Volume</label>
                 <input type="range" id="volumeControl" min="0" max="0.5" step="0.01" value="0.1" class="w-32 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
             </div>
+            
             <div class="flex flex-col">
                 <label class="text-xs font-bold text-slate-500 uppercase mb-1">Duration</label>
                 <select id="durationControl" class="bg-slate-50 border border-slate-200 rounded-md p-1 text-sm outline-none">
+                    <option value="0" selected>Continuous</option>
                     <option value="2">2 Seconds</option>
                     <option value="5">5 Seconds</option>
                     <option value="10">10 Seconds</option>
                     <option value="30">30 Seconds</option>
-                    <option value="0">Continuous</option>
                 </select>
             </div>
+
             <button id="stopButton" onclick="stopAllTones()" class="ml-auto bg-red-100 text-red-700 px-4 py-2 rounded-lg font-bold hover:bg-red-600 hover:text-white transition-all">
                 STOP AUDIO
             </button>
@@ -62,38 +65,46 @@
         const volumeControl = document.getElementById('volumeControl');
         const durationControl = document.getElementById('durationControl');
 
-        // Update volume in real-time if a tone is playing
+        // --- Live Volume Control ---
         volumeControl.addEventListener('input', (e) => {
             if (activeGain && audioCtx) {
+                // setTargetAtTime provides a smooth transition when sliding
                 activeGain.gain.setTargetAtTime(parseFloat(e.target.value), audioCtx.currentTime, 0.05);
             }
         });
 
+        // --- Data Loading ---
         async function loadData() {
             try {
-                const response = await fetch('./frequencies.json'); // Updated path
-                if (!response.ok) throw new Error('Network response was not ok');
+                const response = await fetch('./frequencies.json');
+                if (!response.ok) throw new Error('Data file not found');
                 frequenciesData = await response.json();
                 renderResults(frequenciesData);
             } catch (err) {
                 console.error(err);
-                resultsContainer.innerHTML = `<div class="p-6 text-red-500 bg-red-50 rounded-xl">Error: Could not load data. Ensure frequencies.json is in the public folder.</div>`;
+                resultsContainer.innerHTML = `
+                    <div class="p-6 text-red-500 bg-red-50 rounded-xl border border-red-200">
+                        <strong>Error:</strong> Could not load frequencies.json. <br>
+                        Verify the file is inside the <strong>public</strong> folder.
+                    </div>`;
             }
         }
 
+        // --- UI Rendering ---
         function renderResults(data) {
             resultsContainer.innerHTML = '';
             if (data.length === 0) {
-                resultsContainer.innerHTML = '<p class="text-center text-slate-500">No matches found.</p>';
+                resultsContainer.innerHTML = '<p class="text-center text-slate-500 py-10">No matches found. Try another term.</p>';
                 return;
             }
+
             data.slice(0, 100).forEach(item => {
                 const card = document.createElement('div');
                 card.className = "bg-white p-6 rounded-2xl border border-slate-200 frequency-card";
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-3">
                         <h2 class="text-2xl font-bold text-slate-800">${item.name}</h2>
-                        <span class="text-[10px] font-black px-2 py-1 bg-slate-100 text-slate-500 rounded-full border border-slate-200 uppercase">${item.source}</span>
+                        <span class="text-[10px] font-black px-2 py-1 bg-slate-100 text-slate-500 rounded-full border border-slate-200 uppercase tracking-tighter">${item.source}</span>
                     </div>
                     <p class="text-slate-500 italic mb-5 leading-relaxed">${item.description || ''}</p>
                     <div class="flex flex-wrap gap-2">
@@ -108,16 +119,20 @@
             });
         }
 
+        // --- Search Filtering ---
         searchInput.addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
             const filtered = frequenciesData.filter(item => 
-                item.name.toLowerCase().includes(term) || (item.keywords && item.keywords.some(k => k.toLowerCase().includes(term)))
+                item.name.toLowerCase().includes(term) || 
+                (item.keywords && item.keywords.some(k => k.toLowerCase().includes(term)))
             );
             renderResults(filtered);
         });
 
+        // --- Audio Engine ---
         function playTone(freq) {
-            stopAllTones();
+            stopAllTones(); // Always clear previous tone before starting new one
+            
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             
             activeOscillator = audioCtx.createOscillator();
@@ -126,14 +141,19 @@
             activeOscillator.type = 'sine';
             activeOscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
-            activeGain.gain.setValueAtTime(parseFloat(volumeControl.value), audioCtx.currentTime);
-            
+            // Set initial volume from the slider
+            const currentVol = parseFloat(volumeControl.value);
+            activeGain.gain.setValueAtTime(currentVol, audioCtx.currentTime);
+
             activeOscillator.connect(activeGain);
             activeGain.connect(audioCtx.destination);
+            
             activeOscillator.start();
 
+            // Handle Duration
             const duration = parseInt(durationControl.value);
             if (duration > 0) {
+                // Smooth fade out before stopping
                 activeGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
                 activeOscillator.stop(audioCtx.currentTime + duration);
             }
@@ -141,7 +161,11 @@
 
         function stopAllTones() {
             if (activeOscillator) {
-                try { activeOscillator.stop(); } catch(e) {}
+                try {
+                    activeOscillator.stop();
+                } catch(e) {
+                    // Oscillator already stopped
+                }
                 activeOscillator.disconnect();
                 activeOscillator = null;
                 activeGain = null;
