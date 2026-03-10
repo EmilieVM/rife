@@ -3,233 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rife Frequency by cleardata.app</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@0;1&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+    <title>Rife Frequency Finder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --primary: #a8dadc;
-            --secondary: #f1faee;
-            --accent: #b8bedd;
-            --text: #457b9d;
-            --bg: #fdfcfb;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
-            color: var(--text);
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-
-        header {
-            padding: 4rem 2rem;
-            text-align: center;
-        }
-
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 3rem;
-            color: #1d3557;
-            margin-bottom: 0.5rem;
-            font-weight: 400;
-        }
-
-        .subtitle {
-            font-style: italic;
-            opacity: 0.8;
-            font-size: 1.1rem;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        /* Glassmorphism Card */
-        .frequency-card {
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
-            padding: 3rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            border: 1px solid rgba(255,255,255,0.3);
-            text-align: center;
-        }
-
-        .visualizer-alt {
-            height: 4px;
-            width: 100%;
-            background: rgba(69, 123, 157, 0.1);
-            margin: 2rem 0;
-            border-radius: 2px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .wave {
-            position: absolute;
-            height: 100%;
-            width: 50%;
-            background: var(--primary);
-            animation: move 2s ease-in-out infinite;
-            display: none;
-        }
-
-        @keyframes move {
-            0% { left: -50%; }
-            100% { left: 100%; }
-        }
-
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            align-items: center;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            accent-color: var(--primary);
-            cursor: pointer;
-        }
-
-        .freq-display {
-            font-size: 2.5rem;
-            font-family: 'Playfair Display', serif;
-            color: #1d3557;
-        }
-
-        button {
-            background: #1d3557;
-            color: white;
-            border: none;
-            padding: 1rem 3rem;
-            border-radius: 50px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-            letter-spacing: 1px;
-        }
-
-        button:hover {
-            background: #457b9d;
-            transform: translateY(-2px);
-        }
-
-        button.active {
-            background: #e63946;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-top: 4rem;
-        }
-
-        .info-item h3 {
-            font-family: 'Playfair Display', serif;
-            margin-bottom: 1rem;
-        }
-
-        footer {
-            text-align: center;
-            padding: 4rem 2rem;
-            font-size: 0.9rem;
-            opacity: 0.6;
-        }
+        .frequency-card { transition: all 0.2s ease; }
+        .frequency-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        body { background-color: #f8fafc; }
     </style>
 </head>
-<body>
+<body class="text-slate-900 font-sans">
 
-    <header>
-        <h1>Rife Frequency</h1>
-        <p class="subtitle">by cleardata.app</p>
+    <header class="bg-indigo-800 text-white p-8 shadow-md">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-4xl font-extrabold tracking-tight">Rife Frequency Finder</h1>
+            <p class="mt-2 text-indigo-100 text-lg">Instant access to specialized frequency data.</p>
+        </div>
     </header>
 
-    <div class="container">
-        <div class="frequency-card">
-            <p>Adjust the slider to your desired resonance</p>
-            <div class="visualizer-alt"><div class="wave" id="wave"></div></div>
-            
-            <div class="controls">
-                <div class="freq-display"><span id="freq-val">432</span> Hz</div>
-                <input type="range" id="freq-slider" min="100" max="1000" value="432">
-                
-                <button id="play-btn">Begin Session</button>
-            </div>
+    <main class="max-w-4xl mx-auto p-6">
+        <div class="relative mb-10">
+            <input type="text" id="searchInput" placeholder="Search conditions (e.g. 'Inflammation', 'Pain', 'Solfeggio')..." 
+                class="w-full p-5 pl-6 rounded-2xl border-0 shadow-xl focus:ring-4 focus:ring-indigo-500/20 text-xl outline-none">
         </div>
 
-        <div class="info-grid">
-            <div class="info-item">
-                <h3>432 Hz</h3>
-                <p>Known as the "Earth Frequency," this natural resonance is said to reduce anxiety and lower heart rates.</p>
-            </div>
-            <div class="info-item">
-                <h3>528 Hz</h3>
-                <p>The "Love Frequency," often used in Rife therapy for its purported ability to assist in cellular repair.</p>
+        <div id="results" class="grid gap-6">
+            <div class="text-center py-20 text-slate-400">
+                <p class="text-xl">Initializing frequency database...</p>
             </div>
         </div>
-    </div>
-
-    <footer>
-        &copy; 2024 Rife Frequency Experience • A cleardata.app Project
-    </footer>
+    </main>
 
     <script>
-        let audioCtx;
-        let oscillator;
-        let isPlaying = false;
+        let frequenciesData = [];
+        const resultsContainer = document.getElementById('results');
+        const searchInput = document.getElementById('searchInput');
 
-        const playBtn = document.getElementById('play-btn');
-        const freqSlider = document.getElementById('freq-slider');
-        const freqDisplay = document.getElementById('freq-val');
-        const wave = document.getElementById('wave');
-
-        function startFrequency() {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-
-            oscillator.type = 'sine'; // Softest sound
-            oscillator.frequency.setValueAtTime(freqSlider.value, audioCtx.currentTime);
-            
-            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); // Low volume for safety
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            oscillator.start();
+        // 1. Load your frequencies.json
+        async function loadData() {
+            try {
+                // Since frequencies.json is in the same 'public' folder:
+                const response = await fetch('frequencies.json');
+                if (!response.ok) throw new Error('File not found');
+                frequenciesData = await response.json();
+                renderResults(frequenciesData);
+            } catch (err) {
+                resultsContainer.innerHTML = `
+                    <div class="bg-red-50 p-6 rounded-xl border border-red-200 text-red-700">
+                        <strong>Error:</strong> Could not load frequencies.json. <br>
+                        Make sure the file is inside the <strong>public</strong> folder.
+                    </div>`;
+            }
         }
 
-        playBtn.addEventListener('click', () => {
-            if (!isPlaying) {
-                startFrequency();
-                playBtn.textContent = "Pause Session";
-                playBtn.classList.add('active');
-                wave.style.display = 'block';
-                isPlaying = true;
-            } else {
-                oscillator.stop();
-                audioCtx.close();
-                playBtn.textContent = "Begin Session";
-                playBtn.classList.remove('active');
-                wave.style.display = 'none';
-                isPlaying = false;
+        // 2. Display the frequency cards
+        function renderResults(data) {
+            resultsContainer.innerHTML = '';
+            
+            if (data.length === 0) {
+                resultsContainer.innerHTML = '<p class="text-center text-slate-500 text-lg mt-10">No matches found. Try a different term.</p>';
+                return;
             }
+
+            // Showing first 100 results for performance
+            data.slice(0, 100).forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-2xl border border-slate-200 frequency-card";
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <h2 class="text-2xl font-bold text-slate-800">${item.name}</h2>
+                        <span class="text-[10px] font-black px-2 py-1 bg-slate-100 text-slate-500 rounded-full uppercase tracking-widest border border-slate-200">${item.source}</span>
+                    </div>
+                    <p class="text-slate-500 italic mb-5 leading-relaxed">${item.description || 'No specific description provided.'}</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${item.frequencies.map(f => `
+                            <button onclick="playTone(${f})" class="px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white rounded-lg text-sm font-bold transition-all border border-indigo-100">
+                                ${f} Hz
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+                resultsContainer.appendChild(card);
+            });
+        }
+
+        // 3. Search logic
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = frequenciesData.filter(item => 
+                item.name.toLowerCase().includes(term) || 
+                (item.keywords && item.keywords.some(k => k.toLowerCase().includes(term)))
+            );
+            renderResults(filtered);
         });
 
-        freqSlider.addEventListener('input', (e) => {
-            const val = e.target.value;
-            freqDisplay.textContent = val;
-            if (oscillator) {
-                oscillator.frequency.setValueAtTime(val, audioCtx.currentTime);
-            }
-        });
+        // 4. Tone Generator (Audio Logic)
+        let audioCtx = null;
+        function playTone(freq) {
+            // Create audio context on first click
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+            // Volume control: Start soft and fade out
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); 
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 2); // Plays for 2 seconds
+        }
+
+        loadData();
     </script>
 </body>
 </html>
