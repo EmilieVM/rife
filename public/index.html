@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rife Pro Explorer | Precision Suite</title>
+    <title>Rife Pro | Universal Frequency Research</title>
     <style>
         :root {
             --primary: #6366f1;
@@ -33,80 +33,60 @@
             font-family: 'Inter', -apple-system, system-ui, sans-serif; 
             max-width: 850px; 
             margin: 0 auto; 
-            padding: 30px 20px; 
+            padding: 20px; 
             background: var(--bg); 
             color: var(--text);
             transition: all 0.3s ease;
         }
 
-        /* Header */
-        .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .logo { font-size: 22px; font-weight: 800; letter-spacing: -1px; color: var(--primary); }
-        
-        .btn {
-            padding: 10px 18px; border-radius: 12px; cursor: pointer; border: 1px solid var(--border);
-            background: var(--card-bg); color: var(--text); font-weight: 600; text-decoration: none; font-size: 14px;
-        }
-        .btn-support { background: var(--primary); color: white; border: none; box-shadow: 0 4px 12px var(--primary-glow); }
+        /* Nav */
+        .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .logo { font-size: 20px; font-weight: 800; color: var(--primary); }
+        .btn { padding: 10px 18px; border-radius: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-weight: 600; text-decoration: none; font-size: 13px; }
+        .btn-support { background: var(--primary); color: white; border: none; box-shadow: 0 4px 10px var(--primary-glow); }
 
-        /* Search Section */
-        .search-section { margin-bottom: 25px; }
+        /* Search Section - ON TOP */
+        .search-section { margin-bottom: 20px; }
         .search-box { 
-            width: 100%; padding: 18px 24px; font-size: 17px; border: 2px solid var(--border); 
+            width: 100%; padding: 18px 24px; font-size: 16px; border: 2px solid var(--border); 
             border-radius: 18px; background: var(--card-bg); color: var(--text); box-sizing: border-box;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
-        .search-box:focus { outline: none; border-color: var(--primary); }
-
         .history-bar { display: flex; gap: 8px; overflow-x: auto; padding: 12px 0; scrollbar-width: none; }
-        .history-item { 
-            background: var(--card-bg); padding: 6px 14px; border-radius: 99px; cursor: pointer; 
-            white-space: nowrap; font-size: 12px; border: 1px solid var(--border); color: var(--sub-text);
-        }
+        .history-item { background: var(--card-bg); padding: 6px 14px; border-radius: 99px; cursor: pointer; white-space: nowrap; font-size: 12px; border: 1px solid var(--border); color: var(--sub-text); }
 
-        /* Dashboard */
+        /* Dashboard - BELOW SEARCH */
         .dashboard {
             background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px;
             padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px; margin-bottom: 30px; align-items: center; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.03);
+            gap: 20px; margin-bottom: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.02);
         }
-
         .control-group { display: flex; flex-direction: column; gap: 8px; }
         label { font-size: 11px; font-weight: 700; color: var(--sub-text); text-transform: uppercase; }
-
-        input[type="range"] { accent-color: var(--primary); cursor: pointer; }
+        input[type="range"] { accent-color: var(--primary); cursor: pointer; width: 100%; }
         select { padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
 
-        .status-display {
-            background: var(--bg); padding: 12px; border-radius: 12px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
+        .status-display { background: var(--bg); padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
         .status-text { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
         .dot { width: 8px; height: 8px; background: #94a3b8; border-radius: 50%; }
         .active .dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-
         .stop-btn { background: var(--stop); color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: none; }
 
         /* Results */
-        .card { background: var(--card-bg); border-radius: 18px; padding: 22px; margin-bottom: 15px; border: 1px solid var(--border); }
-        .card h3 { margin: 0 0 5px 0; font-size: 18px; color: var(--primary); }
-        .card p { margin: 0 0 15px 0; font-size: 13px; color: var(--sub-text); }
+        .card { background: var(--card-bg); border-radius: 18px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); }
+        .card h3 { margin: 0 0 5px 0; font-size: 17px; color: var(--primary); }
+        .card p { margin: 0 0 12px 0; font-size: 13px; color: var(--sub-text); }
 
-        /* Freq Buttons & Active Highlight */
+        /* Freq Buttons & Highlighting */
         .freq-btn { 
             background: var(--pill-bg); color: var(--pill-text); padding: 10px 16px; border-radius: 10px; 
             margin: 4px 4px 4px 0; font-family: monospace; font-weight: 700; cursor: pointer; border: 2px solid transparent; 
-            transition: all 0.2s ease;
+            transition: all 0.2s;
         }
-        .freq-btn:hover { transform: translateY(-2px); border-color: var(--primary); }
-        
-        /* THE ACTIVE HIGHLIGHT STYLE */
         .freq-btn.is-playing { 
-            background: var(--primary) !important; 
-            color: white !important; 
-            box-shadow: 0 0 15px var(--primary-glow);
-            transform: scale(1.05);
-            border-color: white;
+            background: var(--primary) !important; color: white !important; 
+            box-shadow: 0 0 12px var(--primary-glow); border-color: white; transform: scale(1.05);
         }
 
         .disclaimer { font-size: 11px; color: var(--sub-text); text-align: center; margin-top: 50px; opacity: 0.6; }
@@ -123,13 +103,13 @@
     </header>
 
     <div class="search-section">
-        <input type="text" id="searchInput" class="search-box" placeholder="Search (963, DNA, Hives)...">
+        <input type="text" id="searchInput" class="search-box" placeholder="Search conditions or Hz (e.g. Hives, 528)...">
         <div id="historyBar" class="history-bar"></div>
     </div>
 
     <div class="dashboard">
         <div class="control-group">
-            <label>Master Volume</label>
+            <label>Output Volume</label>
             <input type="range" id="volume" min="0" max="1" step="0.01" value="0.5">
         </div>
         <div class="control-group">
@@ -143,116 +123,103 @@
             </select>
         </div>
         <div class="control-group">
-            <label>Signal Status</label>
+            <label>System Signal</label>
             <div id="statusBox" class="status-display">
                 <div class="status-text"><div class="dot"></div><span id="statusTxt">Standby</span></div>
-                <button id="stopBtn" class="stop-btn" onclick="stopTone()">STOP SIGNAL</button>
+                <button id="stopBtn" class="stop-btn" onclick="stopTone()">STOP</button>
             </div>
         </div>
     </div>
 
     <div id="results"></div>
 
-    <p class="disclaimer"><b>Experimental Research Tool.</b> Pure Sine Wave Generation. Not a medical device.</p>
+    <p class="disclaimer">Laboratory Sine Wave Research Tool. Not for medical use.</p>
 
     <script>
+        // AUDIO ENGINE SETUP
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const masterGain = audioCtx.createGain(); // Persistent Master Volume
+        masterGain.connect(audioCtx.destination);
+        masterGain.gain.value = 0.5;
+
         let currentOsc = null;
-        let currentGain = null;
-        let activeFreq = null; // Track which frequency is playing
+        let activeFreq = null; // Highlighting tracker
+
+        // REAL-TIME VOLUME FIX
+        document.getElementById('volume').addEventListener('input', (e) => {
+            masterGain.gain.setTargetAtTime(e.target.value, audioCtx.currentTime, 0.02);
+        });
 
         const staticData = [
-            { "name": "Solfeggio: 174 Hz", "description": "Foundation / Pain Reduction", "frequencies": [174], "keywords": ["pain"] },
+            { "name": "Solfeggio: 174 Hz", "description": "Pain Reduction", "frequencies": [174], "keywords": ["pain"] },
             { "name": "Solfeggio: 285 Hz", "description": "Healing Tissue", "frequencies": [285], "keywords": ["healing"] },
-            { "name": "Solfeggio: 396 Hz", "description": "Liberating Guilt and Fear", "frequencies": [396], "keywords": ["fear"] },
+            { "name": "Solfeggio: 396 Hz", "description": "Liberating Fear", "frequencies": [396], "keywords": ["fear"] },
             { "name": "Solfeggio: 417 Hz", "description": "Facilitating Change", "frequencies": [417], "keywords": ["change"] },
-            { "name": "Solfeggio: 528 Hz", "description": "DNA Repair / Miracles", "frequencies": [528], "keywords": ["dna", "miracle", "528"] },
+            { "name": "Solfeggio: 528 Hz", "description": "DNA Repair / Miracle", "frequencies": [528], "keywords": ["dna", "528"] },
             { "name": "Solfeggio: 639 Hz", "description": "Relationships", "frequencies": [639], "keywords": ["love"] },
             { "name": "Solfeggio: 741 Hz", "description": "Intuition", "frequencies": [741], "keywords": ["cleansing"] },
             { "name": "Solfeggio: 852 Hz", "description": "Spiritual Order", "frequencies": [852], "keywords": ["spiritual"] },
-            { "name": "Solfeggio: 963 Hz", "description": "Spirit / Oneness", "frequencies": [963], "keywords": ["crown", "963"] },
-            { "name": "Hives", "description": "Urticaria Relief", "frequencies": [1800, 880, 787, 727, 522, 146, 4.9], "keywords": ["hives", "rash"] }
+            { "name": "Solfeggio: 963 Hz", "description": "Divine Consciousness", "frequencies": [963], "keywords": ["crown", "963"] },
+            { "name": "Hives Protocol", "description": "Urticaria / Skin Allergy", "frequencies": [1800, 880, 787, 727, 522, 146, 4.9], "keywords": ["hives", "rash"] }
         ];
 
         let db = [];
         let history = JSON.parse(localStorage.getItem('rife_history')) || [];
 
-        function toggleDarkMode() {
-            const isDark = document.body.classList.toggle('dark-mode');
-            document.getElementById('darkToggle').innerText = isDark ? '☀️ Light' : '🌙 Dark';
-            localStorage.setItem('rife_theme', isDark ? 'dark' : 'light');
-        }
-        if (localStorage.getItem('rife_theme') === 'dark') toggleDarkMode();
-
-        document.getElementById('volume').addEventListener('input', (e) => {
-            if (currentGain) currentGain.gain.setTargetAtTime(e.target.value, audioCtx.currentTime, 0.05);
-        });
-
         function stopTone() {
             if (currentOsc) {
-                currentGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
-                currentOsc.stop(audioCtx.currentTime + 0.1);
+                currentOsc.stop(audioCtx.currentTime);
                 currentOsc = null;
             }
-            // Clear highlights
+            activeFreq = null;
             document.querySelectorAll('.freq-btn').forEach(b => b.classList.remove('is-playing'));
-            
-            const box = document.getElementById('statusBox');
-            box.classList.remove('active');
+            document.getElementById('statusBox').classList.remove('active');
             document.getElementById('statusTxt').innerText = 'Standby';
             document.getElementById('stopBtn').style.display = 'none';
-            activeFreq = null;
         }
 
-        function playTone(freq, btnElement) {
-            const alreadyPlaying = (activeFreq === freq);
+        function playTone(freq) {
+            if (activeFreq === freq) { stopTone(); return; }
             stopTone();
-            if (alreadyPlaying) return; // Toggle off if clicked again
 
             if (audioCtx.state === 'suspended') audioCtx.resume();
             
             currentOsc = audioCtx.createOscillator();
-            currentGain = audioCtx.createGain();
-            
-            const durValue = document.getElementById('duration').value;
-            const liveVol = document.getElementById('volume').value;
-
             currentOsc.type = 'sine';
             currentOsc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            currentGain.gain.setValueAtTime(liveVol, audioCtx.currentTime);
 
-            currentOsc.connect(currentGain);
-            currentGain.connect(audioCtx.destination);
+            currentOsc.connect(masterGain);
             currentOsc.start();
 
-            // Highlight the button
-            btnElement.classList.add('is-playing');
             activeFreq = freq;
-
-            const box = document.getElementById('statusBox');
-            box.classList.add('active');
+            document.getElementById('statusBox').classList.add('active');
             document.getElementById('statusTxt').innerText = `${freq}Hz Active`;
             document.getElementById('stopBtn').style.display = 'block';
 
+            // Timer Logic
+            const durValue = document.getElementById('duration').value;
             if (durValue !== 'continuous') {
                 const dur = parseFloat(durValue);
-                currentGain.gain.setTargetAtTime(0, audioCtx.currentTime + dur, 0.1);
-                currentOsc.stop(audioCtx.currentTime + dur + 0.2);
-                setTimeout(() => { if(activeFreq === freq) stopTone(); }, (dur + 0.2) * 1000);
+                setTimeout(() => { if(activeFreq === freq) stopTone(); }, dur * 1000);
             }
+
+            render(currentData); // Re-render to update the highlight classes
         }
 
+        let currentData = [];
         async function init() {
             try {
                 const res = await fetch('frequencies.json');
                 const jsonData = await res.json();
                 db = [...staticData, ...jsonData];
             } catch (e) { db = staticData; }
+            currentData = db;
             render(db);
             updateHistoryUI();
         }
 
         function render(data) {
+            currentData = data;
             const container = document.getElementById('results');
             container.innerHTML = data.map(item => `
                 <div class="card">
@@ -261,7 +228,7 @@
                     <div style="display:flex; flex-wrap:wrap;">
                         ${(item.frequencies || []).map(f => `
                             <button class="freq-btn ${activeFreq === f ? 'is-playing' : ''}" 
-                                    onclick="playTone(${f}, this)">
+                                    onclick="playTone(${f})">
                                 ${f}Hz
                             </button>`).join('')}
                     </div>
@@ -269,18 +236,17 @@
             `).join('');
         }
 
+        // Search Engine
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase().trim();
             const filtered = db.filter(i => {
-                const name = (i.name || "").toLowerCase();
-                const desc = (i.description || "").toLowerCase();
-                const keys = (i.keywords || []).join(" ").toLowerCase();
-                const freqs = (i.frequencies || []).join(" ").toLowerCase();
-                return name.includes(term) || desc.includes(term) || keys.includes(term) || freqs.includes(term);
+                const searchStr = `${i.name} ${i.description} ${(i.keywords || []).join(' ')} ${(i.frequencies || []).join(' ')}`.toLowerCase();
+                return searchStr.includes(term);
             });
             render(filtered);
         });
 
+        // History
         document.getElementById('searchInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && e.target.value.trim() !== '') {
                 const val = e.target.value.trim();
@@ -301,6 +267,13 @@
             document.getElementById('searchInput').value = term;
             document.getElementById('searchInput').dispatchEvent(new Event('input'));
         }
+
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            document.getElementById('darkToggle').innerText = isDark ? '☀️ Light' : '🌙 Dark';
+            localStorage.setItem('rife_theme', isDark ? 'dark' : 'light');
+        }
+        if (localStorage.getItem('rife_theme') === 'dark') toggleDarkMode();
 
         init();
     </script>
