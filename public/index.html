@@ -88,29 +88,43 @@ input[type="range"] { width: 100%; height: 10px; accent-color: var(--primary); c
   let timer = null;
   let searchHistory = JSON.parse(localStorage.getItem('rife_history') || '[]');
 
-  function init() {
+  // KEY FIX 1: init() is now async and AWAITS ctx.resume().
+  // Previously, resume() returned a Promise that was never awaited,
+  // so the oscillator started while the AudioContext was still suspended → silence.
+  async function init() {
     if (!ctx) {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
       mainGain = ctx.createGain();
-      mainGain.gain.value = parseFloat(document.getElementById('volSlider').value);
       mainGain.connect(ctx.destination);
     }
-    if (ctx.state === 'suspended') ctx.resume();
+    // Always await resume — this is safe to call even if already running
+    if (ctx.state !== 'running') {
+      await ctx.resume();
+    }
   }
 
-  document.getElementById('volSlider').oninput = function() {
+  // Volume slider: update display and live-adjust gain if audio is playing.
+  // Does NOT call init() — creating AudioContext before a play click
+  // can trigger browser autoplay blocks, causing silence.
+  document.getElementById('volSlider').oninput = function () {
     const val = parseFloat(this.value);
     document.getElementById('volNum').innerText = Math.round(val * 100) + '%';
-    if (mainGain) {
-      mainGain.gain.setTargetAtTime(val, ctx.currentTime, 0.01);
+    if (mainGain && ctx) {
+      mainGain.gain.setTargetAtTime(val, ctx.currentTime, 0.05);
     }
   };
 
   function stopAudio() {
     if (osc) {
-      try { osc.stop(); } catch(e) {}
-      osc.disconnect();
+      try { osc.stop(); } catch (e) {}
+      try { osc.disconnect(); } catch (e) {}
       osc = null;
+    }
+    // KEY FIX 2: restore gain after stopping so the next play() isn't silent.
+    // If gain was ramped or modified during playback, this resets it cleanly.
+    if (mainGain && ctx) {
+      mainGain.gain.cancelScheduledValues(ctx.currentTime);
+      mainGain.gain.value = parseFloat(document.getElementById('volSlider').value);
     }
     if (timer) { clearTimeout(timer); timer = null; }
     activeHz = null;
@@ -119,16 +133,21 @@ input[type="range"] { width: 100%; height: 10px; accent-color: var(--primary); c
     updateHighlights();
   }
 
-  function play(hz) {
-    init();
+  // KEY FIX 3: play() is now async and AWAITS init(),
+  // guaranteeing the AudioContext is fully running before the oscillator starts.
+  async function play(hz) {
+    await init();
+
     if (activeHz === hz) { stopAudio(); return; }
     stopAudio();
+
+    // Set gain BEFORE connecting oscillator to avoid any transient silence
+    mainGain.gain.value = parseFloat(document.getElementById('volSlider').value);
 
     osc = ctx.createOscillator();
     osc.type = 'sine';
     osc.frequency.value = hz;
     osc.connect(mainGain);
-    mainGain.gain.value = parseFloat(document.getElementById('volSlider').value);
     osc.start();
     activeHz = hz;
 
@@ -150,13 +169,14 @@ input[type="range"] { width: 100%; height: 10px; accent-color: var(--primary); c
     });
   }
 
+  // Data & Search
   let db = [];
 
   async function loadData() {
     try {
       const r = await fetch('frequencies.json');
       db = await r.json();
-    } catch(e) {
+    } catch (e) {
       db = [
         { name: "Acne", description: "Run 564 for 6 min", frequencies: [2720, 741, 564] },
         { name: "Solfeggio 741", description: "Cleansing", frequencies: [741] }
@@ -181,7 +201,7 @@ input[type="range"] { width: 100%; height: 10px; accent-color: var(--primary); c
     `).join('');
   }
 
-  document.getElementById('search').onchange = function() {
+  document.getElementById('search').onchange = function () {
     const val = this.value.trim();
     if (val && !searchHistory.includes(val)) {
       searchHistory.unshift(val);
@@ -191,7 +211,7 @@ input[type="range"] { width: 100%; height: 10px; accent-color: var(--primary); c
     }
   };
 
-  document.getElementById('search').oninput = function() {
+  document.getElementById('search').oninput = function () {
     const t = this.value.toLowerCase();
     const filtered = db.filter(i =>
       i.name.toLowerCase().includes(t) ||
