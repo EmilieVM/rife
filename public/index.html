@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rife Pro Explorer | Solfeggio & CAFL</title>
+    <title>Rife Pro Explorer | Full Solfeggio & CAFL</title>
     <style>
         :root { --primary: #6366f1; --bg: #ffffff; --card-bg: #f8fafc; --text: #1e293b; --sub-text: #64748b; --border: #e2e8f0; --pill-bg: #e0e7ff; --pill-text: #4338ca; }
         body.dark-mode { --bg: #0f172a; --card-bg: #1e293b; --text: #f1f5f9; --sub-text: #94a3b8; --border: #334155; --pill-bg: #312e81; --pill-text: #e0e7ff; }
@@ -29,21 +29,24 @@
         </div>
     </div>
 
-    <input type="text" id="searchInput" class="search-box" placeholder="Search (e.g. 'Solfeggio', '880', 'Hives')...">
+    <input type="text" id="searchInput" class="search-box" placeholder="Search (e.g. '963', 'Solfeggio', 'Hives')...">
     <div id="historyBar" class="history-bar"></div>
     <div id="results"></div>
 
     <div class="disclaimer"><b>Experimental research tool.</b> Not for medical use.</div>
 
     <script>
-        // SOLFEGGIO & BASE DATA (Included directly so it never disappears)
-        let staticData = [
-            { "name": "Solfeggio: Ut", "description": "Liberating Guilt and Fear", "frequencies": [396], "keywords": ["solfeggio", "guilt", "fear"] },
-            { "name": "Solfeggio: Re", "description": "Undoing Situations and Facilitating Change", "frequencies": [417], "keywords": ["solfeggio", "change"] },
-            { "name": "Solfeggio: Mi", "description": "Transformation and Miracles (DNA Repair)", "frequencies": [528], "keywords": ["solfeggio", "dna", "miracle", "repair"] },
-            { "name": "Solfeggio: Fa", "description": "Connecting/Relationships", "frequencies": [639], "keywords": ["solfeggio", "relationships"] },
-            { "name": "Solfeggio: Sol", "description": "Awakening Intuition", "frequencies": [741], "keywords": ["solfeggio", "intuition"] },
-            { "name": "Solfeggio: La", "description": "Returning to Spiritual Order", "frequencies": [852], "keywords": ["solfeggio", "spiritual"] },
+        // EXPANDED SOLFEGGIO & BASE DATA
+        const staticData = [
+            { "name": "Solfeggio: 174 Hz", "description": "Foundation / Pain Reduction", "frequencies": [174], "keywords": ["solfeggio", "pain", "foundation"] },
+            { "name": "Solfeggio: 285 Hz", "description": "Quantum Cognition / Healing Tissue", "frequencies": [285], "keywords": ["solfeggio", "healing", "tissue"] },
+            { "name": "Solfeggio: 396 Hz (Ut)", "description": "Liberating Guilt and Fear", "frequencies": [396], "keywords": ["solfeggio", "guilt", "fear"] },
+            { "name": "Solfeggio: 417 Hz (Re)", "description": "Undoing Situations and Facilitating Change", "frequencies": [417], "keywords": ["solfeggio", "change"] },
+            { "name": "Solfeggio: 528 Hz (Mi)", "description": "Transformation and Miracles (DNA Repair)", "frequencies": [528], "keywords": ["solfeggio", "dna", "miracle", "repair"] },
+            { "name": "Solfeggio: 639 Hz (Fa)", "description": "Connecting / Relationships", "frequencies": [639], "keywords": ["solfeggio", "relationships"] },
+            { "name": "Solfeggio: 741 Hz (Sol)", "description": "Awakening Intuition / Expression", "frequencies": [741], "keywords": ["solfeggio", "intuition", "cleansing"] },
+            { "name": "Solfeggio: 852 Hz (La)", "description": "Returning to Spiritual Order", "frequencies": [852], "keywords": ["solfeggio", "spiritual"] },
+            { "name": "Solfeggio: 963 Hz (Si)", "description": "Pure Spirit / Return to Oneness", "frequencies": [963], "keywords": ["solfeggio", "spirit", "963", "crown"] },
             { "name": "Hives", "description": "Urticaria; toxin/allergy related", "frequencies": [1800, 880, 787, 727, 522, 146, 4.9], "keywords": ["hives", "urticaria", "rash"] }
         ];
 
@@ -61,10 +64,8 @@
             try {
                 const res = await fetch('frequencies.json');
                 const jsonData = await res.json();
-                // Combine the static Solfeggio data with your JSON file data
                 db = [...staticData, ...jsonData];
             } catch (e) {
-                console.log("Using static data only.");
                 db = staticData;
             }
             render(db);
@@ -89,7 +90,12 @@
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase().trim();
             const filtered = db.filter(item => {
-                const searchStr = [item.name, item.description, (item.keywords || []).join(' '), (item.frequencies || []).join(' ')].join(' ').toLowerCase();
+                const searchStr = [
+                    item.name, 
+                    item.description, 
+                    (item.keywords || []).join(' '), 
+                    (item.frequencies || []).join(' ')
+                ].join(' ').toLowerCase();
                 return searchStr.includes(term);
             });
             render(filtered);
