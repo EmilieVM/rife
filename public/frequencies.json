@@ -128,4 +128,15 @@
   {
     "name": "Appendicitis",
     "description": "inflammation of the appendix; seek medical help if acute",
-    "
+    "frequencies": [1550.0, 802.0, 880.0, 787.0, 727.0, 444.0, 380.0, 190.0, 10.0, 650.0, 522.0, 125.0, 95.0, 72.0, 20.0, 146.0, 440.0, 450.0],
+    "keywords": ["appendicitis", "appendix"],
+    "source": "Electroherbalism CAFL"
+  },
+  {
+    "name": "Bruises",
+    "description": "discoloration of skin from broken capillaries",
+    "frequencies": [9.1, 110.0, 10000.0],
+    "keywords": ["bruises", "trauma"],
+    "source": "Electroherbalism CAFL"
+  }
+]
