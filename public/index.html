@@ -3,42 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rife Pro Explorer</title>
+    <title>Rife Pro Explorer | Solfeggio & CAFL</title>
     <style>
         :root { --primary: #6366f1; --bg: #ffffff; --card-bg: #f8fafc; --text: #1e293b; --sub-text: #64748b; --border: #e2e8f0; --pill-bg: #e0e7ff; --pill-text: #4338ca; }
         body.dark-mode { --bg: #0f172a; --card-bg: #1e293b; --text: #f1f5f9; --sub-text: #94a3b8; --border: #334155; --pill-bg: #312e81; --pill-text: #e0e7ff; }
         body { font-family: -apple-system, system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: var(--bg); color: var(--text); transition: background 0.2s, color 0.2s; }
         .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
-        .controls { display: flex; gap: 10px; align-items: center; }
         .btn { padding: 10px 16px; border-radius: 10px; cursor: pointer; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-weight: 600; text-decoration: none; font-size: 14px; }
         .btn-stripe { background: #635bff; color: white; border: none; }
         .search-box { width: 100%; padding: 16px; font-size: 18px; border: 2px solid var(--border); border-radius: 14px; background: var(--card-bg); color: var(--text); margin-bottom: 8px; box-sizing: border-box; }
         .history-bar { display: flex; gap: 8px; overflow-x: auto; padding: 5px 0 20px 0; font-size: 0.85rem; }
         .history-item { background: var(--border); padding: 4px 12px; border-radius: 20px; cursor: pointer; white-space: nowrap; color: var(--sub-text); }
-        .card { background: var(--card-bg); border-radius: 14px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); }
+        .card { background: var(--card-bg); border-radius: 14px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .freq-pill { display: inline-block; background: var(--pill-bg); color: var(--pill-text); padding: 5px 10px; border-radius: 6px; margin: 4px 4px 4px 0; font-family: monospace; font-weight: bold; }
-        .disclaimer { font-size: 0.7rem; color: var(--sub-text); text-align: center; margin-top: 40px; line-height: 1.4; }
+        .disclaimer { font-size: 0.7rem; color: var(--sub-text); text-align: center; margin-top: 40px; }
     </style>
 </head>
 <body>
 
     <div class="nav-header">
         <h2 style="margin:0">Rife Pro</h2>
-        <div class="controls">
+        <div style="display:flex; gap:10px;">
             <button class="btn" onclick="toggleDarkMode()" id="darkToggle">🌙 Mode</button>
             <a href="https://buy.stripe.com/7sYdRbglJcHk3s6fzQ8ww01" target="_blank" class="btn btn-stripe">Subscribe</a>
         </div>
     </div>
 
-    <input type="text" id="searchInput" class="search-box" placeholder="Search by name, frequency, or keyword...">
+    <input type="text" id="searchInput" class="search-box" placeholder="Search (e.g. 'Solfeggio', '880', 'Hives')...">
     <div id="historyBar" class="history-bar"></div>
     <div id="results"></div>
 
-    <div class="disclaimer">
-        <b>Notice:</b> Experimental bio-frequency research tool. Not for medical use.
-    </div>
+    <div class="disclaimer"><b>Experimental research tool.</b> Not for medical use.</div>
 
     <script>
+        // SOLFEGGIO & BASE DATA (Included directly so it never disappears)
+        let staticData = [
+            { "name": "Solfeggio: Ut", "description": "Liberating Guilt and Fear", "frequencies": [396], "keywords": ["solfeggio", "guilt", "fear"] },
+            { "name": "Solfeggio: Re", "description": "Undoing Situations and Facilitating Change", "frequencies": [417], "keywords": ["solfeggio", "change"] },
+            { "name": "Solfeggio: Mi", "description": "Transformation and Miracles (DNA Repair)", "frequencies": [528], "keywords": ["solfeggio", "dna", "miracle", "repair"] },
+            { "name": "Solfeggio: Fa", "description": "Connecting/Relationships", "frequencies": [639], "keywords": ["solfeggio", "relationships"] },
+            { "name": "Solfeggio: Sol", "description": "Awakening Intuition", "frequencies": [741], "keywords": ["solfeggio", "intuition"] },
+            { "name": "Solfeggio: La", "description": "Returning to Spiritual Order", "frequencies": [852], "keywords": ["solfeggio", "spiritual"] },
+            { "name": "Hives", "description": "Urticaria; toxin/allergy related", "frequencies": [1800, 880, 787, 727, 522, 146, 4.9], "keywords": ["hives", "urticaria", "rash"] }
+        ];
+
         let db = [];
         let history = JSON.parse(localStorage.getItem('rife_history')) || [];
 
@@ -52,47 +60,44 @@
         async function init() {
             try {
                 const res = await fetch('frequencies.json');
-                db = await res.json();
-                render(db);
-                updateHistoryUI();
+                const jsonData = await res.json();
+                // Combine the static Solfeggio data with your JSON file data
+                db = [...staticData, ...jsonData];
             } catch (e) {
-                document.getElementById('results').innerHTML = "Database Load Error.";
+                console.log("Using static data only.");
+                db = staticData;
             }
+            render(db);
+            updateHistoryUI();
         }
 
         function render(data) {
             const container = document.getElementById('results');
+            if (data.length === 0) {
+                container.innerHTML = "<p style='text-align:center; padding:20px;'>No matches found.</p>";
+                return;
+            }
             container.innerHTML = data.map(item => `
                 <div class="card">
                     <h3 style="margin:0 0 8px 0; color:var(--primary)">${item.name}</h3>
                     <div style="font-size:0.9rem; margin-bottom:10px">${item.description || ''}</div>
-                    <div>${item.frequencies.map(f => `<span class="freq-pill">${f}Hz</span>`).join('')}</div>
+                    <div>${(item.frequencies || []).map(f => `<span class="freq-pill">${f}Hz</span>`).join('')}</div>
                 </div>
             `).join('');
         }
 
-        const input = document.getElementById('searchInput');
-
-        // FIXED SEARCH LOGIC: Added safeguards for missing data fields
-        input.addEventListener('input', () => {
-            const term = input.value.toLowerCase().trim();
-            const filtered = db.filter(i => {
-                const name = (i.name || "").toLowerCase();
-                const desc = (i.description || "").toLowerCase();
-                const keywords = Array.isArray(i.keywords) ? i.keywords.join(" ").toLowerCase() : "";
-                const freqs = Array.isArray(i.frequencies) ? i.frequencies.join(" ") : "";
-
-                return name.includes(term) || 
-                       desc.includes(term) || 
-                       keywords.includes(term) || 
-                       freqs.includes(term);
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+            const filtered = db.filter(item => {
+                const searchStr = [item.name, item.description, (item.keywords || []).join(' '), (item.frequencies || []).join(' ')].join(' ').toLowerCase();
+                return searchStr.includes(term);
             });
             render(filtered);
         });
 
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && input.value.trim() !== '') {
-                const val = input.value.trim();
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && e.target.value.trim() !== '') {
+                const val = e.target.value.trim();
                 if (!history.includes(val)) {
                     history.unshift(val);
                     history = history.slice(0, 6);
@@ -103,11 +108,11 @@
         });
 
         function updateHistoryUI() {
-            const bar = document.getElementById('historyBar');
-            bar.innerHTML = history.map(h => `<span class="history-item" onclick="runHistory('${h}')">🕒 ${h}</span>`).join('');
+            document.getElementById('historyBar').innerHTML = history.map(h => `<span class="history-item" onclick="runHistory('${h}')">🕒 ${h}</span>`).join('');
         }
 
         function runHistory(term) {
+            const input = document.getElementById('searchInput');
             input.value = term;
             input.dispatchEvent(new Event('input'));
         }
