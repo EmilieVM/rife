@@ -3,60 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rife Pro Explorer | Precision Generator</title>
+    <title>Rife Pro Explorer | Professional Suite</title>
     <style>
-        :root { --primary: #6366f1; --bg: #ffffff; --card-bg: #f8fafc; --text: #1e293b; --sub-text: #64748b; --border: #e2e8f0; --pill-bg: #e0e7ff; --pill-text: #4338ca; }
-        body.dark-mode { --bg: #0f172a; --card-bg: #1e293b; --text: #f1f5f9; --sub-text: #94a3b8; --border: #334155; --pill-bg: #312e81; --pill-text: #e0e7ff; }
-        body { font-family: -apple-system, system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: var(--bg); color: var(--text); transition: background 0.2s, color 0.2s; }
-        
-        .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-        .btn { padding: 10px 16px; border-radius: 10px; cursor: pointer; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-weight: 600; text-decoration: none; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; }
-        .btn-support { background: #635bff; color: white; border: none; }
-        .btn-support:hover { opacity: 0.9; }
-        
-        /* Dashboard Controls */
-        .controls-row { display: flex; gap: 20px; background: var(--card-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border); align-items: center; flex-wrap: wrap; }
-        .control-group { display: flex; flex-direction: column; gap: 5px; }
-        label { font-size: 11px; font-weight: bold; color: var(--sub-text); text-transform: uppercase; letter-spacing: 0.05em; }
-        select, input[type="range"] { padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); cursor: pointer; }
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.2);
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --sub-text: #64748b;
+            --border: #e2e8f0;
+            --pill-bg: #e0e7ff;
+            --pill-text: #4338ca;
+            --accent: #10b981;
+            --stop: #ef4444;
+        }
 
-        .search-box { width: 100%; padding: 16px; font-size: 18px; border: 2px solid var(--border); border-radius: 14px; background: var(--card-bg); color: var(--text); margin-bottom: 8px; box-sizing: border-box; }
-        .history-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 15px; font-size: 0.85rem; }
-        .history-item { background: var(--border); padding: 4px 12px; border-radius: 20px; cursor: pointer; white-space: nowrap; color: var(--sub-text); border: 1px solid transparent; }
+        body.dark-mode {
+            --bg: #020617;
+            --card-bg: #0f172a;
+            --text: #f1f5f9;
+            --sub-text: #94a3b8;
+            --border: #1e293b;
+            --pill-bg: #1e1b4b;
+            --pill-text: #e0e7ff;
+        }
+
+        body { 
+            font-family: 'Inter', -apple-system, system-ui, sans-serif; 
+            max-width: 850px; 
+            margin: 0 auto; 
+            padding: 30px 20px; 
+            background: var(--bg); 
+            color: var(--text);
+            transition: all 0.3s ease;
+            line-height: 1.5;
+        }
+
+        /* Header */
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .logo { font-size: 22px; font-weight: 800; letter-spacing: -1px; color: var(--primary); }
+        
+        .btn {
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            font-weight: 600;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .btn-support { background: var(--primary); color: white; border: none; box-shadow: 0 4px 12px var(--primary-glow); }
+        .btn-support:hover { transform: translateY(-1px); box-shadow: 0 6px 15px var(--primary-glow); }
+
+        /* 1. Search Bar (TOP) */
+        .search-section { margin-bottom: 25px; }
+        .search-box { 
+            width: 100%; 
+            padding: 18px 24px; 
+            font-size: 17px; 
+            border: 2px solid var(--border); 
+            border-radius: 18px; 
+            background: var(--card-bg);
+            color: var(--text);
+            box-sizing: border-box;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            transition: border-color 0.2s;
+        }
+        .search-box:focus { outline: none; border-color: var(--primary); }
+
+        .history-bar { display: flex; gap: 8px; overflow-x: auto; padding: 12px 0; scrollbar-width: none; }
+        .history-item { 
+            background: var(--card-bg); 
+            padding: 6px 14px; 
+            border-radius: 99px; 
+            cursor: pointer; 
+            white-space: nowrap; 
+            font-size: 12px; 
+            border: 1px solid var(--border);
+            color: var(--sub-text);
+            transition: all 0.2s;
+        }
         .history-item:hover { border-color: var(--primary); color: var(--primary); }
-        
-        .card { background: var(--card-bg); border-radius: 14px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--border); }
-        .freq-btn { display: inline-block; background: var(--pill-bg); color: var(--pill-text); padding: 10px 15px; border-radius: 8px; margin: 5px 5px 5px 0; font-family: monospace; font-weight: bold; cursor: pointer; border: none; font-size: 14px; transition: transform 0.1s; }
-        .freq-btn:hover { filter: brightness(0.95); transform: scale(1.03); }
-        
-        .status-container { display: flex; align-items: center; gap: 10px; min-width: 220px; }
-        .status-msg { font-size: 13px; color: var(--primary); font-weight: 600; }
-        .stop-btn { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; display: none; }
 
-        .disclaimer { font-size: 0.7rem; color: var(--sub-text); text-align: center; margin-top: 50px; opacity: 0.7; line-height: 1.5; }
+        /* 2. Dashboard (Middle) */
+        .dashboard {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.03);
+            align-items: center;
+        }
+
+        .control-group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-size: 11px; font-weight: 700; color: var(--sub-text); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        input[type="range"] { accent-color: var(--primary); cursor: pointer; }
+        select { 
+            padding: 10px; 
+            border-radius: 10px; 
+            border: 1px solid var(--border); 
+            background: var(--bg); 
+            color: var(--text); 
+            font-size: 13px;
+        }
+
+        .status-display {
+            background: var(--bg);
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-text { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .dot { width: 8px; height: 8px; background: #94a3b8; border-radius: 50%; }
+        .active .dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        .stop-btn { background: var(--stop); color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: none; }
+
+        /* 3. Results (Bottom) */
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 18px; 
+            padding: 22px; 
+            margin-bottom: 15px; 
+            border: 1px solid var(--border);
+        }
+        .card h3 { margin: 0 0 5px 0; font-size: 18px; color: var(--primary); }
+        .card p { margin: 0 0 15px 0; font-size: 13px; color: var(--sub-text); }
+
+        .freq-btn { 
+            background: var(--pill-bg); 
+            color: var(--pill-text); 
+            padding: 10px 16px; 
+            border-radius: 10px; 
+            margin: 4px 4px 4px 0; 
+            font-family: monospace; 
+            font-weight: 700; 
+            cursor: pointer; 
+            border: none; 
+            transition: all 0.2s;
+        }
+        .freq-btn:hover { background: var(--primary); color: white; transform: translateY(-2px); }
+
+        .disclaimer { font-size: 11px; color: var(--sub-text); text-align: center; margin-top: 50px; opacity: 0.6; }
     </style>
 </head>
 <body>
 
-    <div class="nav-header">
-        <h2 style="margin:0">Rife Pro</h2>
+    <header class="nav-header">
+        <div class="logo">RIFE PRO</div>
         <div style="display:flex; gap:10px;">
             <button class="btn" onclick="toggleDarkMode()" id="darkToggle">🌙 Mode</button>
-            <a href="https://buy.stripe.com/7sYdRbglJcHk3s6fzQ8ww01" target="_blank" class="btn btn-support">
-                Support
-            </a>
+            <a href="https://buy.stripe.com/7sYdRbglJcHk3s6fzQ8ww01" target="_blank" class="btn btn-support">Support</a>
         </div>
+    </header>
+
+    <div class="search-section">
+        <input type="text" id="searchInput" class="search-box" placeholder="Search conditions, Hz, or keywords (e.g. '963', 'Hives')...">
+        <div id="historyBar" class="history-bar"></div>
     </div>
 
-    <div class="controls-row">
+    <div class="dashboard">
         <div class="control-group">
-            <label>Master Volume</label>
-            <input type="range" id="volume" min="0" max="1" step="0.05" value="0.5">
+            <label>Live Volume</label>
+            <input type="range" id="volume" min="0" max="1" step="0.01" value="0.5">
         </div>
         <div class="control-group">
             <label>Timer</label>
             <select id="duration">
-                <option value="continuous" selected>Continuous</option>
+                <option value="continuous" selected>Continuous Play</option>
                 <option value="30">30 Seconds</option>
                 <option value="600">10 Minutes</option>
                 <option value="1200">20 Minutes</option>
@@ -64,40 +195,37 @@
             </select>
         </div>
         <div class="control-group">
-            <label>Signal Status</label>
-            <div class="status-container">
-                <div id="status" class="status-msg">System Ready</div>
-                <button id="stopBtn" class="stop-btn" onclick="stopTone()">STOP SIGNAL</button>
+            <label>Frequency Status</label>
+            <div id="statusBox" class="status-display">
+                <div class="status-text"><div class="dot"></div><span id="statusTxt">Standby</span></div>
+                <button id="stopBtn" class="stop-btn" onclick="stopTone()">STOP</button>
             </div>
         </div>
     </div>
 
-    <input type="text" id="searchInput" class="search-box" placeholder="Search conditions, Hz, or keywords (e.g. '963', 'Hives')...">
-    <div id="historyBar" class="history-bar"></div>
     <div id="results"></div>
 
-    <div class="disclaimer">
-        <b>Disclaimer:</b> Experimental Sine Wave Generator. For research purposes only. 
-        Not intended to diagnose, treat, or cure any medical condition.
-    </div>
+    <p class="disclaimer">
+        <b>Laboratory Research Tool.</b> Generates pure sine wave audio. 
+        Not a medical device. Always consult with a professional.
+    </p>
 
     <script>
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let currentOsc = null;
         let currentGain = null;
 
-        // Static Library: Solfeggios + Hives
         const staticData = [
             { "name": "Solfeggio: 174 Hz", "description": "Foundation / Pain Reduction", "frequencies": [174], "keywords": ["pain"] },
-            { "name": "Solfeggio: 285 Hz", "description": "Quantum Cognition / Healing Tissue", "frequencies": [285], "keywords": ["healing"] },
-            { "name": "Solfeggio: 396 Hz", "description": "Liberating Guilt and Fear", "frequencies": [396], "keywords": ["fear"] },
+            { "name": "Solfeggio: 285 Hz", "description": "Healing Tissue / Quantum Cognition", "frequencies": [285], "keywords": ["healing"] },
+            { "name": "Solfeggio: 396 Hz", "description": "Liberating Guilt and Fear", "frequencies": [396], "keywords": ["fear", "guilt"] },
             { "name": "Solfeggio: 417 Hz", "description": "Undoing Situations / Change", "frequencies": [417], "keywords": ["change"] },
-            { "name": "Solfeggio: 528 Hz", "description": "DNA Repair / Miracles", "frequencies": [528], "keywords": ["dna", "miracle"] },
-            { "name": "Solfeggio: 639 Hz", "description": "Connecting / Relationships", "frequencies": [639], "keywords": ["love"] },
-            { "name": "Solfeggio: 741 Hz", "description": "Awakening Intuition / Cleansing", "frequencies": [741], "keywords": ["intuition"] },
-            { "name": "Solfeggio: 852 Hz", "description": "Return to Spiritual Order", "frequencies": [852], "keywords": ["spiritual"] },
-            { "name": "Solfeggio: 963 Hz", "description": "Pure Spirit / Return to Oneness", "frequencies": [963], "keywords": ["spirit", "oneness", "crown"] },
-            { "name": "Hives", "description": "Urticaria / Skin Rash relief", "frequencies": [1800, 880, 787, 727, 522, 146, 4.9], "keywords": ["hives", "rash", "urticaria", "skin"] }
+            { "name": "Solfeggio: 528 Hz", "description": "DNA Repair / Transformation", "frequencies": [528], "keywords": ["dna", "miracle", "528"] },
+            { "name": "Solfeggio: 639 Hz", "description": "Connecting / Relationships", "frequencies": [639], "keywords": ["love", "relationships"] },
+            { "name": "Solfeggio: 741 Hz", "description": "Awakening Intuition / Expression", "frequencies": [741], "keywords": ["intuition"] },
+            { "name": "Solfeggio: 852 Hz", "description": "Returning to Spiritual Order", "frequencies": [852], "keywords": ["spiritual"] },
+            { "name": "Solfeggio: 963 Hz", "description": "Pure Spirit / Return to Oneness", "frequencies": [963], "keywords": ["spirit", "oneness", "crown", "963"] },
+            { "name": "Hives", "description": "Urticaria / Skin Rash Protocol", "frequencies": [1800, 880, 787, 727, 522, 146, 4.9], "keywords": ["hives", "rash", "skin"] }
         ];
 
         let db = [];
@@ -110,14 +238,22 @@
         }
         if (localStorage.getItem('rife_theme') === 'dark') toggleDarkMode();
 
+        // FIX: Live Volume Adjustment
+        document.getElementById('volume').addEventListener('input', (e) => {
+            if (currentGain) {
+                currentGain.gain.setTargetAtTime(e.target.value, audioCtx.currentTime, 0.05);
+            }
+        });
+
         function stopTone() {
             if (currentOsc) {
-                // Smooth ramp down to prevent audio artifacts
-                currentGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.1);
-                currentOsc.stop(audioCtx.currentTime + 0.2);
+                currentGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+                currentOsc.stop(audioCtx.currentTime + 0.1);
                 currentOsc = null;
             }
-            document.getElementById('status').innerText = 'System Ready';
+            const box = document.getElementById('statusBox');
+            box.classList.remove('active');
+            document.getElementById('statusTxt').innerText = 'Standby';
             document.getElementById('stopBtn').style.display = 'none';
         }
 
@@ -129,24 +265,26 @@
             currentGain = audioCtx.createGain();
             
             const durValue = document.getElementById('duration').value;
-            const vol = parseFloat(document.getElementById('volume').value);
+            const liveVol = document.getElementById('volume').value;
 
             currentOsc.type = 'sine';
             currentOsc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            currentGain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            currentGain.gain.setValueAtTime(liveVol, audioCtx.currentTime);
 
             currentOsc.connect(currentGain);
             currentGain.connect(audioCtx.destination);
             currentOsc.start();
 
-            document.getElementById('status').innerText = `Running: ${freq}Hz`;
-            document.getElementById('stopBtn').style.display = 'inline-block';
+            const box = document.getElementById('statusBox');
+            box.classList.add('active');
+            document.getElementById('statusTxt').innerText = `${freq}Hz Active`;
+            document.getElementById('stopBtn').style.display = 'block';
 
             if (durValue !== 'continuous') {
                 const dur = parseFloat(durValue);
-                currentGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
-                currentOsc.stop(audioCtx.currentTime + dur);
-                setTimeout(() => { if(currentOsc === null) return; stopTone(); }, dur * 1000);
+                currentGain.gain.setTargetAtTime(0, audioCtx.currentTime + dur, 0.1);
+                currentOsc.stop(audioCtx.currentTime + dur + 0.2);
+                setTimeout(() => { if(currentOsc) stopTone(); }, (dur + 0.2) * 1000);
             }
         }
 
@@ -162,14 +300,10 @@
 
         function render(data) {
             const container = document.getElementById('results');
-            if(data.length === 0) {
-                container.innerHTML = "<p style='text-align:center; padding:20px;'>No frequencies found.</p>";
-                return;
-            }
             container.innerHTML = data.map(item => `
                 <div class="card">
-                    <h3 style="margin:0 0 5px 0; color:var(--primary)">${item.name}</h3>
-                    <div style="font-size:0.85rem; color:var(--sub-text); margin-bottom:12px;">${item.description || ''}</div>
+                    <h3>${item.name}</h3>
+                    <p>${item.description || ''}</p>
                     <div style="display:flex; flex-wrap:wrap;">
                         ${(item.frequencies || []).map(f => `<button class="freq-btn" onclick="playTone(${f})">${f}Hz</button>`).join('')}
                     </div>
@@ -177,17 +311,15 @@
             `).join('');
         }
 
-        // Bulletproof Search Logic
+        // FIX: Bulletproof Search (Handles missing fields/keywords)
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase().trim();
             const filtered = db.filter(i => {
-                const searchStr = [
-                    i.name,
-                    i.description,
-                    (i.keywords || []).join(' '),
-                    (i.frequencies || []).join(' ')
-                ].join(' ').toLowerCase();
-                return searchStr.includes(term);
+                const name = (i.name || "").toLowerCase();
+                const desc = (i.description || "").toLowerCase();
+                const keys = (i.keywords || []).join(" ").toLowerCase();
+                const freqs = (i.frequencies || []).join(" ").toLowerCase();
+                return name.includes(term) || desc.includes(term) || keys.includes(term) || freqs.includes(term);
             });
             render(filtered);
         });
@@ -205,9 +337,7 @@
         });
 
         function updateHistoryUI() {
-            document.getElementById('historyBar').innerHTML = history.map(h => 
-                `<span class="history-item" onclick="runHistory('${h}')">🕒 ${h}</span>`
-            ).join('');
+            document.getElementById('historyBar').innerHTML = history.map(h => `<span class="history-item" onclick="runHistory('${h}')">${h}</span>`).join('');
         }
 
         function runHistory(term) {
