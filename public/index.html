@@ -1,231 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rife Pro | Precision Frequency Suite</title>
-    <style>
-        :root {
-            --primary: #6366f1;
-            --primary-glow: rgba(99, 102, 241, 0.4);
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #0f172a;
-            --border: #e2e8f0;
-        }
-        body.dark-mode {
-            --bg: #020617; --card: #0f172a; --text: #f1f5f9; --border: #1e293b;
-        }
-        body { 
-            font-family: -apple-system, system-ui, sans-serif; 
-            max-width: 600px; margin: 0 auto; padding: 20px; 
-            background: var(--bg); color: var(--text); transition: background 0.3s;
-        }
-
-        /* Header & Stripe */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .nav-btns { display: flex; gap: 10px; }
-        .btn { padding: 8px 15px; border-radius: 10px; cursor: pointer; border: 1px solid var(--border); font-weight: 600; font-size: 13px; text-decoration: none; background: var(--card); color: var(--text); }
-        .btn-support { background: var(--primary); color: white; border: none; box-shadow: 0 4px 10px var(--primary-glow); }
-
-        /* Search & History */
-        .search-box { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid var(--border); background: var(--card); color: var(--text); font-size: 16px; margin-bottom: 10px; outline: none; box-sizing: border-box; }
-        .search-box:focus { border-color: var(--primary); }
-        .history-tag { display: inline-block; padding: 5px 10px; background: var(--border); border-radius: 20px; font-size: 12px; margin-right: 5px; margin-bottom: 15px; cursor: pointer; opacity: 0.8; }
-
-        /* Dashboard & Volume */
-        .dashboard { background: var(--card); border: 2px solid var(--primary); padding: 20px; border-radius: 20px; margin-bottom: 25px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .vol-label { display: flex; justify-content: space-between; font-weight: 800; margin-bottom: 10px; color: var(--primary); }
-        input[type="range"] { width: 100%; height: 10px; accent-color: var(--primary); cursor: pointer; appearance: none; background: var(--border); border-radius: 5px; }
-
-        /* Controls */
-        .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
-        .duration-select { padding: 5px; border-radius: 5px; border: 1px solid var(--border); background: var(--card); color: var(--text); }
-        .stop-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; }
-
-        /* Frequency Cards */
-        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 15px; margin-bottom: 15px; }
-        .freq-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-        .freq-btn { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-weight: 700; cursor: pointer; font-family: monospace; transition: 0.2s; }
-        
-        /* THE INDIGO HIGHLIGHT FIX */
-        .freq-btn.is-active { 
-            background: var(--primary) !important; color: white !important; 
-            border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow);
-            transform: scale(1.05);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rife Pro | Precision Frequency Suite</title>
+<style>
+:root {
+  --primary: #6366f1;
+  --primary-glow: rgba(99, 102, 241, 0.4);
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #0f172a;
+  --border: #e2e8f0;
+}
+body.dark-mode {
+  --bg: #020617; --card: #0f172a; --text: #f1f5f9; --border: #1e293b;
+}
+body {
+  font-family: -apple-system, system-ui, sans-serif;
+  max-width: 600px; margin: 0 auto; padding: 20px;
+  background: var(--bg); color: var(--text); transition: background 0.3s;
+}
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.nav-btns { display: flex; gap: 10px; }
+.btn { padding: 8px 15px; border-radius: 10px; cursor: pointer; border: 1px solid var(--border); font-weight: 600; font-size: 13px; text-decoration: none; background: var(--card); color: var(--text); }
+.btn-support { background: var(--primary); color: white; border: none; box-shadow: 0 4px 10px var(--primary-glow); }
+.search-box { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid var(--border); background: var(--card); color: var(--text); font-size: 16px; margin-bottom: 10px; outline: none; box-sizing: border-box; }
+.search-box:focus { border-color: var(--primary); }
+.history-tag { display: inline-block; padding: 5px 10px; background: var(--border); border-radius: 20px; font-size: 12px; margin-right: 5px; margin-bottom: 15px; cursor: pointer; opacity: 0.8; }
+.dashboard { background: var(--card); border: 2px solid var(--primary); padding: 20px; border-radius: 20px; margin-bottom: 25px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+.vol-label { display: flex; justify-content: space-between; font-weight: 800; margin-bottom: 10px; color: var(--primary); }
+input[type="range"] { width: 100%; height: 10px; accent-color: var(--primary); cursor: pointer; appearance: none; background: var(--border); border-radius: 5px; }
+.controls { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
+.duration-select { padding: 5px; border-radius: 5px; border: 1px solid var(--border); background: var(--card); color: var(--text); }
+.stop-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; }
+.card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 15px; margin-bottom: 15px; }
+.freq-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.freq-btn { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-weight: 700; cursor: pointer; font-family: monospace; transition: 0.2s; }
+.freq-btn.is-active {
+  background: var(--primary) !important; color: white !important;
+  border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow);
+  transform: scale(1.05);
+}
+</style>
 </head>
 <body>
 
-    <div class="header">
-        <h1 style="margin:0; font-size: 24px; letter-spacing: -1px;">RIFE PRO</h1>
-        <div class="nav-btns">
-            <button onclick="document.body.classList.toggle('dark-mode')" class="btn">🌓 Mode</button>
-            <a href="https://buy.stripe.com/7sYdRbglJcHk3s6fzQ8ww01" target="_blank" class="btn btn-support">Support</a>
-        </div>
+<div class="header">
+  <h1 style="margin:0; font-size: 24px; letter-spacing: -1px;">RIFE PRO</h1>
+  <div class="nav-btns">
+    <button onclick="document.body.classList.toggle('dark-mode')" class="btn">🌓 Mode</button>
+    <a href="https://buy.stripe.com/7sYdRbglJcHk3s6fzQ8ww01" target="_blank" class="btn btn-support">Support</a>
+  </div>
+</div>
+
+<input type="text" id="search" class="search-box" placeholder="Search (e.g. 741, Hives, Pain)...">
+<div id="history"></div>
+
+<div class="dashboard">
+  <div class="vol-label">
+    <span>MASTER VOLUME</span>
+    <span id="volNum">50%</span>
+  </div>
+  <input type="range" id="volSlider" min="0" max="1" step="0.01" value="0.5">
+  <div class="controls">
+    <div>
+      <label style="font-size: 12px; font-weight: bold;">DURATION:</label>
+      <select id="duration" class="duration-select">
+        <option value="60">1 Min</option>
+        <option value="300">5 Mins</option>
+        <option value="600">10 Mins</option>
+        <option value="0">Continuous</option>
+      </select>
     </div>
+    <button id="stopBtn" class="stop-btn" onclick="stopAudio()">STOP</button>
+  </div>
+  <div id="status" style="font-size: 11px; margin-top: 10px; font-weight: bold; opacity: 0.6;">SYSTEM READY</div>
+</div>
 
-    <input type="text" id="search" class="search-box" placeholder="Search (e.g. 741, Hives, Pain)...">
-    <div id="history"></div>
+<div id="results"></div>
 
-    <div class="dashboard">
-        <div class="vol-label">
-            <span>MASTER VOLUME</span>
-            <span id="volNum">50%</span>
+<script>
+  let ctx = null;
+  let mainGain = null;
+  let osc = null;
+  let activeHz = null;
+  let timer = null;
+  let searchHistory = JSON.parse(localStorage.getItem('rife_history') || '[]');
+
+  function init() {
+    if (!ctx) {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      mainGain = ctx.createGain();
+      mainGain.gain.value = parseFloat(document.getElementById('volSlider').value);
+      mainGain.connect(ctx.destination);
+    }
+    if (ctx.state === 'suspended') ctx.resume();
+  }
+
+  document.getElementById('volSlider').oninput = function() {
+    const val = parseFloat(this.value);
+    document.getElementById('volNum').innerText = Math.round(val * 100) + '%';
+    if (mainGain) {
+      mainGain.gain.setTargetAtTime(val, ctx.currentTime, 0.01);
+    }
+  };
+
+  function stopAudio() {
+    if (osc) {
+      try { osc.stop(); } catch(e) {}
+      osc.disconnect();
+      osc = null;
+    }
+    if (timer) { clearTimeout(timer); timer = null; }
+    activeHz = null;
+    document.getElementById('stopBtn').style.display = 'none';
+    document.getElementById('status').innerText = 'SIGNAL STOPPED';
+    updateHighlights();
+  }
+
+  function play(hz) {
+    init();
+    if (activeHz === hz) { stopAudio(); return; }
+    stopAudio();
+
+    osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = hz;
+    osc.connect(mainGain);
+    mainGain.gain.value = parseFloat(document.getElementById('volSlider').value);
+    osc.start();
+    activeHz = hz;
+
+    const dur = parseInt(document.getElementById('duration').value);
+    if (dur > 0) {
+      timer = setTimeout(() => { stopAudio(); }, dur * 1000);
+      document.getElementById('status').innerText = `PLAYING: ${hz}HZ (${dur / 60}m)`;
+    } else {
+      document.getElementById('status').innerText = `PLAYING: ${hz}HZ (∞)`;
+    }
+
+    document.getElementById('stopBtn').style.display = 'block';
+    updateHighlights();
+  }
+
+  function updateHighlights() {
+    document.querySelectorAll('.freq-btn').forEach(btn => {
+      btn.classList.toggle('is-active', parseFloat(btn.innerText) === activeHz);
+    });
+  }
+
+  let db = [];
+
+  async function loadData() {
+    try {
+      const r = await fetch('frequencies.json');
+      db = await r.json();
+    } catch(e) {
+      db = [
+        { name: "Acne", description: "Run 564 for 6 min", frequencies: [2720, 741, 564] },
+        { name: "Solfeggio 741", description: "Cleansing", frequencies: [741] }
+      ];
+    }
+    render(db);
+    renderHistory();
+  }
+
+  function render(data) {
+    const container = document.getElementById('results');
+    container.innerHTML = data.map(item => `
+      <div class="card">
+        <h3 style="margin:0; font-size: 18px;">${item.name}</h3>
+        <p style="margin:5px 0; font-size:12px; opacity:0.7;">${item.description || ''}</p>
+        <div class="freq-grid">
+          ${item.frequencies.map(f => `
+            <button class="freq-btn ${activeHz === f ? 'is-active' : ''}" onclick="play(${f})">${f}</button>
+          `).join('')}
         </div>
-        <input type="range" id="volSlider" min="0" max="1" step="0.01" value="0.5">
-        
-        <div class="controls">
-            <div>
-                <label style="font-size: 12px; font-weight: bold;">DURATION:</label>
-                <select id="duration" class="duration-select">
-                    <option value="60">1 Min</option>
-                    <option value="300">5 Mins</option>
-                    <option value="600">10 Mins</option>
-                    <option value="0">Continuous</option>
-                </select>
-            </div>
-            <button id="stopBtn" class="stop-btn" onclick="stop()">STOP</button>
-        </div>
-        <div id="status" style="font-size: 11px; margin-top: 10px; font-weight: bold; opacity: 0.6;">SYSTEM READY</div>
-    </div>
+      </div>
+    `).join('');
+  }
 
-    <div id="results"></div>
+  document.getElementById('search').onchange = function() {
+    const val = this.value.trim();
+    if (val && !searchHistory.includes(val)) {
+      searchHistory.unshift(val);
+      if (searchHistory.length > 5) searchHistory.pop();
+      localStorage.setItem('rife_history', JSON.stringify(searchHistory));
+      renderHistory();
+    }
+  };
 
-    <script>
-        let ctx = null;
-        let mainGain = null;
-        let osc = null;
-        let activeHz = null;
-        let timer = null;
-        let searchHistory = JSON.parse(localStorage.getItem('rife_history') || '[]');
+  document.getElementById('search').oninput = function() {
+    const t = this.value.toLowerCase();
+    const filtered = db.filter(i =>
+      i.name.toLowerCase().includes(t) ||
+      i.frequencies.some(f => f.toString().includes(t))
+    );
+    render(filtered);
+    updateHighlights();
+  };
 
-        function init() {
-            if (!ctx) {
-                ctx = new (window.AudioContext || window.webkitAudioContext)();
-                mainGain = ctx.createGain();
-                mainGain.connect(ctx.destination);
-            }
-            if (ctx.state === 'suspended') ctx.resume();
-        }
+  function renderHistory() {
+    const hDiv = document.getElementById('history');
+    hDiv.innerHTML = searchHistory.map(h => `
+      <span class="history-tag" onclick="runSearch('${h}')">${h}</span>
+    `).join('');
+  }
 
-        // --- VOLUME FIX ---
-        document.getElementById('volSlider').oninput = function() {
-            init();
-            const val = this.value;
-            document.getElementById('volNum').innerText = Math.round(val * 100) + '%';
-            if (mainGain) mainGain.gain.setTargetAtTime(val, ctx.currentTime, 0.01);
-        };
+  function runSearch(val) {
+    document.getElementById('search').value = val;
+    document.getElementById('search').dispatchEvent(new Event('input'));
+  }
 
-        function stop() {
-            if (osc) { osc.stop(); osc.disconnect(); osc = null; }
-            if (timer) { clearTimeout(timer); timer = null; }
-            activeHz = null;
-            document.getElementById('stopBtn').style.display = 'none';
-            document.getElementById('status').innerText = 'SIGNAL STOPPED';
-            updateHighlights();
-        }
-
-        function play(hz) {
-            init();
-            if (activeHz === hz) { stop(); return; }
-            stop();
-
-            osc = ctx.createOscillator();
-            osc.type = 'sine';
-            osc.frequency.value = hz;
-            osc.connect(mainGain);
-            
-            mainGain.gain.value = document.getElementById('volSlider').value;
-            
-            osc.start();
-            activeHz = hz;
-
-            // Duration Logic
-            const dur = parseInt(document.getElementById('duration').value);
-            if (dur > 0) {
-                timer = setTimeout(() => { stop(); }, dur * 1000);
-                document.getElementById('status').innerText = `PLAYING: ${hz}HZ (${dur/60}m)`;
-            } else {
-                document.getElementById('status').innerText = `PLAYING: ${hz}HZ (∞)`;
-            }
-
-            document.getElementById('stopBtn').style.display = 'block';
-            updateHighlights();
-        }
-
-        function updateHighlights() {
-            document.querySelectorAll('.freq-btn').forEach(btn => {
-                btn.classList.toggle('is-active', parseFloat(btn.innerText) === activeHz);
-            });
-        }
-
-        // --- DATA & SEARCH FIX ---
-        let db = [];
-        async function loadData() {
-            try {
-                const r = await fetch('frequencies.json');
-                db = await r.json();
-            } catch(e) {
-                // Fallback demo data
-                db = [
-                    {name: "Acne", description: "run 564 for 6 min", frequencies: [2720, 741, 564]},
-                    {name: "Solfeggio 741", description: "Cleansing", frequencies: [741]}
-                ];
-            }
-            render(db);
-            renderHistory();
-        }
-
-        function render(data) {
-            const container = document.getElementById('results');
-            container.innerHTML = data.map(item => `
-                <div class="card">
-                    <h3 style="margin:0; font-size: 18px;">${item.name}</h3>
-                    <p style="margin:5px 0; font-size:12px; opacity:0.7;">${item.description || ''}</p>
-                    <div class="freq-grid">
-                        ${item.frequencies.map(f => `
-                            <button class="freq-btn ${activeHz === f ? 'is-active' : ''}" onclick="play(${f})">${f}</button>
-                        `).join('')}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        document.getElementById('search').onchange = function() {
-            const val = this.value.trim();
-            if (val && !searchHistory.includes(val)) {
-                searchHistory.unshift(val);
-                if (searchHistory.length > 5) searchHistory.pop();
-                localStorage.setItem('rife_history', JSON.stringify(searchHistory));
-                renderHistory();
-            }
-        };
-
-        document.getElementById('search').oninput = function() {
-            const t = this.value.toLowerCase();
-            const filtered = db.filter(i => 
-                i.name.toLowerCase().includes(t) || 
-                i.frequencies.some(f => f.toString().includes(t))
-            );
-            render(filtered);
-            updateHighlights();
-        };
-
-        function renderHistory() {
-            const hDiv = document.getElementById('history');
-            hDiv.innerHTML = searchHistory.map(h => `
-                <span class="history-tag" onclick="runSearch('${h}')">${h}</span>
-            `).join('');
-        }
-
-        function runSearch(val) {
-            document.getElementById('search').value = val;
-            document.getElementById('search').dispatchEvent(new Event('input'));
-        }
-
-        loadData();
-    </script>
+  loadData();
+</script>
 </body>
 </html>
