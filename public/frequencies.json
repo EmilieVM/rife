@@ -1,4 +1,19 @@
-[
+[[
+  {
+    "name": "Paraneoplastic Syndromes",
+    "frequencies": [68000, 398400],
+    "description": "As mentioned above (see EDTFL sets).",
+    "source": "The Frequencies of Rifing - IV Ed",
+    "keywords": ["cancer", "immune", "syndrome"]
+  },
+  {
+    "name": "Lambert-Eaton Myasthenic Syndrome",
+    "frequencies": [200, 460, 600, 2750, 122000, 275690, 327500, 649540, 735000, 833690],
+    "description": "Rare autoimmune disorder with weakness of limb muscles, often accompanying cancer.",
+    "source": "The Frequencies of Rifing - IV Ed",
+    "keywords": ["weakness", "autoimmune", "muscles", "Eaton-Lambert"]
+  }
+]
   {
     "name": "Abdominal inflammation",
     "description": "",
