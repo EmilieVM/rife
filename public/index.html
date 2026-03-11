@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rife Pro | Universal Precision</title>
+    <title>Rife Pro | Precision Frequency Suite</title>
     <style>
         :root {
             --primary: #6366f1;
@@ -18,182 +18,170 @@
         body { 
             font-family: -apple-system, system-ui, sans-serif; 
             max-width: 600px; margin: 0 auto; padding: 20px; 
-            background: var(--bg); color: var(--text); line-height: 1.5;
+            background: var(--bg); color: var(--text); transition: background 0.2s;
         }
-        .nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        
-        /* Volume & Controls */
-        .master-controls { 
-            background: var(--card); border: 2px solid var(--primary); 
-            padding: 20px; border-radius: 16px; margin-bottom: 25px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-        .vol-row { display: flex; justify-content: space-between; font-weight: 800; font-size: 14px; margin-bottom: 10px; color: var(--primary); }
-        input[type="range"] { width: 100%; height: 15px; accent-color: var(--primary); cursor: pointer; margin-bottom: 15px; }
 
-        /* Search & UI */
+        /* Header & Support */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .logo { font-size: 22px; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
+        .nav-btns { display: flex; gap: 10px; }
+        .btn { padding: 10px 16px; border-radius: 12px; cursor: pointer; border: 1px solid var(--border); font-weight: 700; font-size: 13px; text-decoration: none; transition: 0.2s; background: var(--card); color: var(--text); }
+        .btn-support { background: var(--primary); color: white; border: none; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
+
+        /* 1. SEARCH AT TOP */
         .search-box { 
-            width: 100%; padding: 15px; border-radius: 12px; border: 2px solid var(--border);
-            background: var(--card); color: var(--text); font-size: 16px; margin-bottom: 20px; box-sizing: border-box;
-            outline: none;
+            width: 100%; padding: 18px; border-radius: 16px; border: 2px solid var(--border);
+            background: var(--card); color: var(--text); font-size: 16px; margin-bottom: 20px; box-sizing: border-box; outline: none;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
         .search-box:focus { border-color: var(--primary); }
 
-        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 14px; margin-bottom: 15px; }
-        .card h3 { margin: 0 0 5px 0; font-size: 18px; }
-        .card p { margin: 0 0 15px 0; font-size: 13px; opacity: 0.7; }
+        /* 2. VOLUME DASHBOARD BELOW SEARCH */
+        .dashboard { 
+            background: var(--card); border: 2px solid var(--primary); 
+            padding: 22px; border-radius: 24px; margin-bottom: 25px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+        }
+        .vol-header { display: flex; justify-content: space-between; font-weight: 800; margin-bottom: 12px; font-size: 14px; }
+        #volDisplay { color: var(--primary); font-family: monospace; font-size: 18px; }
+        
+        input[type="range"] { 
+            width: 100%; height: 12px; accent-color: var(--primary); cursor: pointer; 
+            background: var(--border); border-radius: 10px; appearance: none;
+        }
+
+        /* 3. RESULTS CARDS */
+        .card { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 20px; margin-bottom: 15px; }
+        .card h3 { margin: 0 0 8px 0; font-size: 18px; color: var(--primary); }
+        .card p { margin: 0 0 15px 0; font-size: 13px; opacity: 0.7; line-height: 1.4; }
         
         .freq-grid { display: flex; flex-wrap: wrap; gap: 8px; }
         .freq-btn { 
-            padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border);
+            padding: 12px 18px; border-radius: 12px; border: 1px solid var(--border);
             background: var(--bg); color: var(--text); font-weight: 700; cursor: pointer;
-            transition: all 0.2s ease; font-family: monospace;
+            transition: 0.2s; font-family: monospace; font-size: 14px;
         }
 
-        /* HIGHLIGHT FIX: Indigo glow for active frequency */
-        .freq-btn.is-playing { 
+        /* INDIGO HIGHLIGHT */
+        .freq-btn.active-signal { 
             background: var(--primary) !important; color: white !important;
-            border-color: var(--primary); box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
-            transform: translateY(-2px);
+            border-color: var(--primary); box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+            transform: scale(1.05);
         }
 
-        .status-panel { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-        .btn-stop { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; display: none; }
-        .status-txt { font-size: 12px; font-weight: bold; }
-
-        .disclaimer { font-size: 10px; text-align: center; margin-top: 40px; opacity: 0.5; }
+        .status-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
+        .stop-btn { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; display: none; }
     </style>
 </head>
 <body>
 
-    <div class="nav">
-        <h1 style="margin:0; font-size: 24px; letter-spacing: -1px;">RIFE PRO</h1>
-        <button onclick="document.body.classList.toggle('dark-mode')" class="freq-btn">🌓 Mode</button>
-    </div>
+    <header class="header">
+        <div class="logo">RIFE PRO</div>
+        <div class="nav-btns">
+            <button onclick="document.body.classList.toggle('dark-mode')" class="btn">🌓 Mode</button>
+            <a href="https://buy.stripe.com/7sYdRbglJcHk3s6fzQ8ww01" target="_blank" class="btn btn-support">Support</a>
+        </div>
+    </header>
 
-    <div class="master-controls">
-        <div class="vol-row">
+    <input type="text" id="search" class="search-box" placeholder="Search (e.g. Abdominal, Hives, Solfeggio)...">
+
+    <div class="dashboard">
+        <div class="vol-header">
             <span>MASTER VOLUME</span>
-            <span id="volPercent">50%</span>
+            <span id="volDisplay">50%</span>
         </div>
-        <input type="range" id="masterVol" min="0" max="1" step="0.01" value="0.5">
+        <input type="range" id="volControl" min="0" max="1" step="0.01" value="0.5">
         
-        <div class="status-panel">
-            <span id="statusLabel" class="status-txt">SYSTEM READY</span>
-            <button id="stopBtn" class="btn-stop" onclick="killSignal()">STOP SIGNAL</button>
+        <div class="status-footer">
+            <span id="statusNote" style="font-size: 11px; font-weight: 700; opacity: 0.6;">SYSTEM READY</span>
+            <button id="stopBtn" class="stop-btn" onclick="stopAll()">STOP SIGNAL</button>
         </div>
     </div>
-
-    <input type="text" id="searchField" class="search-box" placeholder="Search (e.g. Abdominal, Hives, 528)...">
 
     <div id="results"></div>
 
-    <p class="disclaimer">Experimental Sine Tool. Frequencies under 40Hz may be silent on phone speakers.</p>
-
     <script>
-        // --- THE ENGINE ---
         let audioCtx = null;
-        let masterGainNode = null;
-        let activeOscillator = null;
-        let currentActiveHz = null;
+        let masterGain = null;
+        let currentOsc = null;
+        let activeHz = null;
 
-        // Force Audio Initialization
-        function setupAudio() {
+        // Wake Audio System
+        function wakeAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                masterGainNode = audioCtx.createGain();
-                masterGainNode.connect(audioCtx.destination);
+                masterGain = audioCtx.createGain();
+                masterGain.connect(audioCtx.destination);
+                masterGain.gain.value = document.getElementById('volControl').value;
             }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        // Handle Volume Slider
-        const slider = document.getElementById('masterVol');
-        const percent = document.getElementById('volPercent');
-
-        slider.addEventListener('input', (e) => {
-            setupAudio(); // Ensure engine stays awake
-            const val = e.target.value;
-            percent.innerText = Math.round(val * 100) + '%';
-            
-            if (masterGainNode) {
-                // Use .value for instant hardware response
-                masterGainNode.gain.value = val;
+        // Live Volume Sync
+        document.getElementById('volControl').addEventListener('input', function() {
+            wakeAudio();
+            const val = this.value;
+            document.getElementById('volDisplay').innerText = Math.round(val * 100) + '%';
+            if (masterGain) {
+                // Direct assignment for most robust phone/laptop support
+                masterGain.gain.value = val;
             }
         });
 
-        function killSignal() {
-            if (activeOscillator) {
-                activeOscillator.stop();
-                activeOscillator.disconnect();
-                activeOscillator = null;
+        function stopAll() {
+            if (currentOsc) {
+                currentOsc.stop();
+                currentOsc.disconnect();
+                currentOsc = null;
             }
-            currentActiveHz = null;
+            activeHz = null;
             document.getElementById('stopBtn').style.display = 'none';
-            document.getElementById('statusLabel').innerText = 'SIGNAL STOPPED';
-            // Clear all highlights
-            document.querySelectorAll('.freq-btn').forEach(b => b.classList.remove('is-playing'));
+            document.getElementById('statusNote').innerText = 'SIGNAL STOPPED';
+            document.querySelectorAll('.freq-btn').forEach(b => b.classList.remove('active-signal'));
         }
 
-        function playHz(hz) {
-            setupAudio(); // Resume on every click
+        function play(hz) {
+            wakeAudio();
+            if (activeHz === hz) { stopAll(); return; }
+            stopAll();
 
-            // Toggle logic: If clicking the same one, stop it.
-            if (currentActiveHz === hz) {
-                killSignal();
-                return;
-            }
-
-            killSignal(); // Stop anything else playing
-
-            activeOscillator = audioCtx.createOscillator();
-            activeOscillator.type = 'sine';
-            activeOscillator.frequency.value = hz;
+            currentOsc = audioCtx.createOscillator();
+            currentOsc.type = 'sine';
+            currentOsc.frequency.value = hz;
             
-            // Connect to our global fader
-            activeOscillator.connect(masterGainNode);
+            currentOsc.connect(masterGain);
+            // Re-sync volume on start
+            masterGain.gain.value = document.getElementById('volControl').value;
             
-            // SYNC FIX: Re-apply the current slider value to the gain node
-            masterGainNode.gain.value = slider.value;
-            
-            activeOscillator.start();
-            currentActiveHz = hz;
+            currentOsc.start();
+            activeHz = hz;
 
-            // UI Feedback
+            document.getElementById('statusNote').innerText = 'PLAYING: ' + hz + ' HZ';
             document.getElementById('stopBtn').style.display = 'block';
-            document.getElementById('statusLabel').innerText = 'PLAYING: ' + hz + ' HZ';
             
-            // HIGHLIGHT FIX: Find the button across the whole document
-            updateHighlights();
+            updateBtnHighlights();
         }
 
-        function updateHighlights() {
+        function updateBtnHighlights() {
             document.querySelectorAll('.freq-btn').forEach(btn => {
-                if (parseFloat(btn.innerText) === currentActiveHz) {
-                    btn.classList.add('is-playing');
+                if(parseFloat(btn.innerText) === activeHz) {
+                    btn.classList.add('active-signal');
                 } else {
-                    btn.classList.remove('is-playing');
+                    btn.classList.remove('active-signal');
                 }
             });
         }
 
-        // --- DATA & SEARCH ---
-        let mainData = [];
-
-        async function init() {
+        // --- DATA ---
+        let mainDb = [];
+        async function fetchDb() {
             try {
-                const res = await fetch('frequencies.json');
-                mainData = await res.json();
+                const r = await fetch('frequencies.json');
+                mainDb = await r.json();
             } catch(e) {
-                // Fallback basic data
-                mainData = [
-                    { name: "Solfeggio 528", frequencies: [528], description: "Transformation & Miracles" },
-                    { name: "Hives Protocol", frequencies: [1800, 880, 787, 727, 4.9], description: "Allergy/Skin rash" }
-                ];
+                mainDb = [{name:"Solfeggio 528", frequencies:[528], description:"Transformation"}];
             }
-            render(mainData);
+            render(mainDb);
         }
 
         function render(data) {
@@ -204,27 +192,25 @@
                     <p>${item.description || ''}</p>
                     <div class="freq-grid">
                         ${item.frequencies.map(f => `
-                            <button class="freq-btn ${currentActiveHz === f ? 'is-playing' : ''}" 
-                                    onclick="playHz(${f})">
-                                ${f}
-                            </button>
+                            <button class="freq-btn ${activeHz === f ? 'active-signal' : ''}" 
+                                    onclick="play(${f})">${f}</button>
                         `).join('')}
                     </div>
                 </div>
             `).join('');
         }
 
-        document.getElementById('searchField').addEventListener('input', (e) => {
-            const t = e.target.value.toLowerCase();
-            const filtered = mainData.filter(i => 
+        document.getElementById('search').oninput = function() {
+            const t = this.value.toLowerCase();
+            const filtered = mainDb.filter(i => 
                 i.name.toLowerCase().includes(t) || 
                 (i.keywords && i.keywords.some(k => k.toLowerCase().includes(t)))
             );
             render(filtered);
-            updateHighlights(); // Ensure highlights persist after filtering
-        });
+            updateBtnHighlights();
+        };
 
-        init();
+        fetchDb();
     </script>
 </body>
 </html>
