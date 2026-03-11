@@ -3,214 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rife Pro | Precision Frequency Suite</title>
+    <title>Frequency Therapy App</title>
     <style>
-        :root {
-            --primary: #6366f1;
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --text: #0f172a;
-            --border: #e2e8f0;
-        }
-        body.dark-mode {
-            --bg: #020617; --card: #0f172a; --text: #f1f5f9; --border: #1e293b;
-        }
-        body { 
-            font-family: -apple-system, system-ui, sans-serif; 
-            max-width: 600px; margin: 0 auto; padding: 20px; 
-            background: var(--bg); color: var(--text); transition: background 0.2s;
-        }
-
-        /* Header & Support */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .logo { font-size: 22px; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
-        .nav-btns { display: flex; gap: 10px; }
-        .btn { padding: 10px 16px; border-radius: 12px; cursor: pointer; border: 1px solid var(--border); font-weight: 700; font-size: 13px; text-decoration: none; transition: 0.2s; background: var(--card); color: var(--text); }
-        .btn-support { background: var(--primary); color: white; border: none; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
-
-        /* 1. SEARCH AT TOP */
-        .search-box { 
-            width: 100%; padding: 18px; border-radius: 16px; border: 2px solid var(--border);
-            background: var(--card); color: var(--text); font-size: 16px; margin-bottom: 20px; box-sizing: border-box; outline: none;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-        }
-        .search-box:focus { border-color: var(--primary); }
-
-        /* 2. VOLUME DASHBOARD BELOW SEARCH */
-        .dashboard { 
-            background: var(--card); border: 2px solid var(--primary); 
-            padding: 22px; border-radius: 24px; margin-bottom: 25px;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
-        }
-        .vol-header { display: flex; justify-content: space-between; font-weight: 800; margin-bottom: 12px; font-size: 14px; }
-        #volDisplay { color: var(--primary); font-family: monospace; font-size: 18px; }
-        
-        input[type="range"] { 
-            width: 100%; height: 12px; accent-color: var(--primary); cursor: pointer; 
-            background: var(--border); border-radius: 10px; appearance: none;
-        }
-
-        /* 3. RESULTS CARDS */
-        .card { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 20px; margin-bottom: 15px; }
-        .card h3 { margin: 0 0 8px 0; font-size: 18px; color: var(--primary); }
-        .card p { margin: 0 0 15px 0; font-size: 13px; opacity: 0.7; line-height: 1.4; }
-        
-        .freq-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-        .freq-btn { 
-            padding: 12px 18px; border-radius: 12px; border: 1px solid var(--border);
-            background: var(--bg); color: var(--text); font-weight: 700; cursor: pointer;
-            transition: 0.2s; font-family: monospace; font-size: 14px;
-        }
-
-        /* INDIGO HIGHLIGHT */
-        .freq-btn.active-signal { 
-            background: var(--primary) !important; color: white !important;
-            border-color: var(--primary); box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
-            transform: scale(1.05);
-        }
-
-        .status-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
-        .stop-btn { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; display: none; }
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px; }
+        .result-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .result-item:hover { background: #f0f7ff; }
+        .details { margin-top: 20px; padding: 15px; border: 1px solid #007bff; border-radius: 4px; display: none; }
+        .play-btn { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <header class="header">
-        <div class="logo">RIFE PRO</div>
-        <div class="nav-btns">
-            <button onclick="document.body.classList.toggle('dark-mode')" class="btn">🌓 Mode</button>
-            <a href="https://buy.stripe.com/7sYdRbglJcHk3s6fzQ8ww01" target="_blank" class="btn btn-support">Support</a>
-        </div>
-    </header>
-
-    <input type="text" id="search" class="search-box" placeholder="Search (e.g. Abdominal, Hives, Solfeggio)...">
-
-    <div class="dashboard">
-        <div class="vol-header">
-            <span>MASTER VOLUME</span>
-            <span id="volDisplay">50%</span>
-        </div>
-        <input type="range" id="volControl" min="0" max="1" step="0.01" value="0.5">
-        
-        <div class="status-footer">
-            <span id="statusNote" style="font-size: 11px; font-weight: 700; opacity: 0.6;">SYSTEM READY</span>
-            <button id="stopBtn" class="stop-btn" onclick="stopAll()">STOP SIGNAL</button>
-        </div>
-    </div>
-
+<div class="container">
+    <h2>Frequency Finder</h2>
+    <input type="text" id="searchInput" placeholder="Search by name, keyword, or frequency (e.g. 741)...">
+    
     <div id="results"></div>
 
-    <script>
-        let audioCtx = null;
-        let masterGain = null;
-        let currentOsc = null;
-        let activeHz = null;
+    <div id="detailsArea" class="details">
+        <h3 id="detailName"></h3>
+        <p><strong>Description:</strong> <span id="detailDesc"></span></p>
+        <p><strong>Frequencies:</strong> <span id="detailFreqs"></span></p>
+        <button class="play-btn" onclick="playFrequency()">Play First Frequency</button>
+    </div>
+</div>
 
-        // Wake Audio System
-        function wakeAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                masterGain = audioCtx.createGain();
-                masterGain.connect(audioCtx.destination);
-                masterGain.gain.value = document.getElementById('volControl').value;
-            }
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-        }
+<script>
+    // Embedded data from frequencies.json
+    const frequencyData = [
+        { "name": "Acne", "description": "run 564 for 6 min", "frequencies": [2720.0, 2170.0, 1800.0, 1600.0, 1550.0, 1552.0, 1500.0, 802.0, 880.0, 778.0, 787.0, 760.0, 741.0, 727.0, 660.0, 564.0, 465.0, 450.0, 444.0, 428.0], "keywords": ["acne", "for", "run", "min"], "source": "Electroherbalism CAFL" },
+        { "name": "Solfeggio 741 Hz - Awakening Intuition", "description": "Associated with solving problems, awakening intuition, and cleansing toxins.", "frequencies": [741.0], "keywords": ["solfeggio", "intuition", "awakening", "cleansing"], "source": "Solfeggio" },
+        { "name": "ALS 4", "description": "also use for MS", "frequencies": [10000.0, 5000.0, 2900.0, 2750.0, 2700.0, 2145.0, 938.0, 862.0, 841.0, 777.0, 766.0, 741.0, 739.0, 688.0, 682.0, 660.0, 572.0, 532.0, 520.0, 477.0, 442.0, 433.0, 344.0, 343.0, 342.0, 338.0, 324.0, 322.0, 253.0, 242.0, 112.0], "keywords": ["als", "also", "for", "use"], "source": "Electroherbalism CAFL" }
+        // ... more data can be added here
+    ];
 
-        // Live Volume Sync
-        document.getElementById('volControl').addEventListener('input', function() {
-            wakeAudio();
-            const val = this.value;
-            document.getElementById('volDisplay').innerText = Math.round(val * 100) + '%';
-            if (masterGain) {
-                // Direct assignment for most robust phone/laptop support
-                masterGain.gain.value = val;
-            }
+    let currentFreq = 0;
+    let audioCtx = null;
+
+    const searchInput = document.getElementById('searchInput');
+    const resultsDiv = document.getElementById('results');
+
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        resultsDiv.innerHTML = '';
+        
+        if (query.length < 2) return;
+
+        const filtered = frequencyData.filter(item => {
+            // Check Name
+            if (item.name.toLowerCase().includes(query)) return true;
+            // Check Keywords
+            if (item.keywords.some(k => k.toLowerCase().includes(query))) return true;
+            // FIX: Check Frequencies Array
+            if (item.frequencies.some(f => f.toString().includes(query))) return true;
+            return false;
         });
 
-        function stopAll() {
-            if (currentOsc) {
-                currentOsc.stop();
-                currentOsc.disconnect();
-                currentOsc = null;
-            }
-            activeHz = null;
-            document.getElementById('stopBtn').style.display = 'none';
-            document.getElementById('statusNote').innerText = 'SIGNAL STOPPED';
-            document.querySelectorAll('.freq-btn').forEach(b => b.classList.remove('active-signal'));
+        filtered.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'result-item';
+            div.innerText = item.name;
+            div.onclick = () => showDetails(item);
+            resultsDiv.appendChild(div);
+        });
+    });
+
+    function showDetails(item) {
+        document.getElementById('detailsArea').style.display = 'block';
+        document.getElementById('detailName').innerText = item.name;
+        document.getElementById('detailDesc').innerText = item.description || "No description available.";
+        document.getElementById('detailFreqs').innerText = item.frequencies.join(', ');
+        currentFreq = item.frequencies[0]; // Pick the first frequency to play
+    }
+
+    function playFrequency() {
+        // AUDIO FIX: Initialize/Resume context on click
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
         }
 
-        function play(hz) {
-            wakeAudio();
-            if (activeHz === hz) { stopAll(); return; }
-            stopAll();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
 
-            currentOsc = audioCtx.createOscillator();
-            currentOsc.type = 'sine';
-            currentOsc.frequency.value = hz;
-            
-            currentOsc.connect(masterGain);
-            // Re-sync volume on start
-            masterGain.gain.value = document.getElementById('volControl').value;
-            
-            currentOsc.start();
-            activeHz = hz;
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(currentFreq, audioCtx.currentTime);
+        
+        // VOLUME FIX: Ensure gain is connected to destination
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); // 10% volume
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
 
-            document.getElementById('statusNote').innerText = 'PLAYING: ' + hz + ' HZ';
-            document.getElementById('stopBtn').style.display = 'block';
-            
-            updateBtnHighlights();
-        }
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 2); // Play for 2 seconds
+    }
+</script>
 
-        function updateBtnHighlights() {
-            document.querySelectorAll('.freq-btn').forEach(btn => {
-                if(parseFloat(btn.innerText) === activeHz) {
-                    btn.classList.add('active-signal');
-                } else {
-                    btn.classList.remove('active-signal');
-                }
-            });
-        }
-
-        // --- DATA ---
-        let mainDb = [];
-        async function fetchDb() {
-            try {
-                const r = await fetch('frequencies.json');
-                mainDb = await r.json();
-            } catch(e) {
-                mainDb = [{name:"Solfeggio 528", frequencies:[528], description:"Transformation"}];
-            }
-            render(mainDb);
-        }
-
-        function render(data) {
-            const container = document.getElementById('results');
-            container.innerHTML = data.map(item => `
-                <div class="card">
-                    <h3>${item.name}</h3>
-                    <p>${item.description || ''}</p>
-                    <div class="freq-grid">
-                        ${item.frequencies.map(f => `
-                            <button class="freq-btn ${activeHz === f ? 'active-signal' : ''}" 
-                                    onclick="play(${f})">${f}</button>
-                        `).join('')}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        document.getElementById('search').oninput = function() {
-            const t = this.value.toLowerCase();
-            const filtered = mainDb.filter(i => 
-                i.name.toLowerCase().includes(t) || 
-                (i.keywords && i.keywords.some(k => k.toLowerCase().includes(t)))
-            );
-            render(filtered);
-            updateBtnHighlights();
-        };
-
-        fetchDb();
-    </script>
 </body>
 </html>
