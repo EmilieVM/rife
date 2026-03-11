@@ -3,155 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rife Frequency Database</title>
+    <title>Rife Frequency Pro</title>
     <style>
         :root {
             --primary: #2563eb;
-            --bg: #f8fafc;
+            --bg: #ffffff;
+            --card-bg: #ffffff;
             --text: #1e293b;
+            --sub-text: #64748b;
+            --border: #e2e8f0;
+            --pill-bg: #eff6ff;
+            --pill-text: #1e40af;
         }
+
+        /* Dark Mode Variables */
+        body.dark-mode {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f1f5f9;
+            --sub-text: #94a3b8;
+            --border: #334155;
+            --pill-bg: #1e3a8a;
+            --pill-text: #dbeafe;
+        }
+
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            max-width: 900px; 
+            font-family: -apple-system, sans-serif; 
+            max-width: 800px; 
             margin: 0 auto; 
             padding: 20px; 
             background: var(--bg); 
             color: var(--text);
+            transition: background 0.3s, color 0.3s;
         }
-        .header { text-align: center; margin-bottom: 40px; }
-        .search-container {
-            position: sticky;
-            top: 20px;
-            z-index: 100;
-            background: var(--bg);
-            padding-bottom: 20px;
+
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
         }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-pay {
+            background: #ffdd00; /* PayPal/Coffee Yellow */
+            color: #000;
+            border: none;
+        }
+
         .search-box { 
             width: 100%; 
-            padding: 15px 20px; 
+            padding: 15px; 
             font-size: 18px; 
-            border: 2px solid #e2e8f0; 
+            border: 2px solid var(--border); 
             border-radius: 12px; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            outline: none;
-            transition: border-color 0.2s;
+            background: var(--card-bg);
+            color: var(--text);
+            margin-bottom: 20px;
         }
-        .search-box:focus { border-color: var(--primary); }
+
         .card { 
-            background: white; 
+            background: var(--card-bg); 
             border-radius: 12px; 
-            padding: 24px; 
-            margin-bottom: 16px; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border: 1px solid #f1f5f9;
+            padding: 20px; 
+            margin-bottom: 15px; 
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
-        .card h3 { margin: 0 0 8px 0; color: var(--primary); font-size: 1.4rem; }
-        .description { color: #64748b; font-style: italic; margin-bottom: 15px; display: block; }
-        .freq-container { display: flex; flex-wrap: wrap; gap: 8px; }
+
         .freq-pill { 
-            background: #eff6ff; 
-            color: #1e40af; 
-            padding: 4px 12px; 
-            border-radius: 20px; 
-            font-size: 0.9rem; 
-            font-weight: 600;
-            border: 1px solid #dbeafe;
+            display: inline-block;
+            background: var(--pill-bg); 
+            color: var(--pill-text); 
+            padding: 4px 10px; 
+            border-radius: 6px; 
+            margin: 4px;
+            font-size: 0.85rem;
+            font-family: monospace;
         }
-        .keyword-tag {
-            font-size: 0.75rem;
-            background: #f1f5f9;
-            padding: 2px 8px;
-            border-radius: 4px;
-            margin-right: 5px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #94a3b8;
-        }
-        .count-info { margin-bottom: 10px; font-size: 0.9rem; color: #64748b; }
+
+        .description { display: block; margin: 10px 0; color: var(--sub-text); font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Rife Frequency Explorer</h1>
-        <p>Consolidated Annotated Frequency List (CAFL)</p>
-    </div>
-
-    <div class="search-container">
-        <input type="text" id="searchInput" class="search-box" placeholder="Search conditions, keywords, or frequencies (e.g. '880')...">
-        <div id="count" class="count-info">Loading...</div>
-    </div>
-
-    <div id="results">
+    <div class="nav-bar">
+        <h2>Rife Explorer</h2>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn" onclick="toggleDarkMode()" id="darkToggle">🌙 Dark Mode</button>
+            <a href="https://www.paypal.com/donate" target="_blank" class="btn btn-pay">☕ Support Project</a>
         </div>
+    </div>
+
+    <input type="text" id="searchInput" class="search-box" placeholder="Search conditions or frequency (e.g. '880')...">
+
+    <div id="results"></div>
 
     <script>
         let frequencyData = [];
 
-        // 1. Load the Data
+        // Dark Mode Logic
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            document.getElementById('darkToggle').innerText = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'dark') toggleDarkMode();
+
+        // Load Data
         async function loadData() {
             try {
-                // If index.html and frequencies.json are in the same folder, use 'frequencies.json'
-                // If it's in public folder from root, use '/frequencies.json'
-                const response = await fetch('frequencies.json'); 
-                if (!response.ok) throw new Error("Could not find frequencies.json");
-                
+                const response = await fetch('frequencies.json');
                 frequencyData = await response.json();
-                updateUI(frequencyData);
-            } catch (err) {
-                document.getElementById('results').innerHTML = `<p style="color:red">Error: ${err.message}</p>`;
+                render(frequencyData);
+            } catch (e) {
+                document.getElementById('results').innerHTML = "Error loading frequencies.json";
             }
         }
 
-        // 2. Render the Cards
-        function updateUI(items) {
-            const resultsDiv = document.getElementById('results');
-            const countDiv = document.getElementById('count');
-            
-            countDiv.innerText = `Showing ${items.length} conditions`;
-
-            if (items.length === 0) {
-                resultsDiv.innerHTML = '<div class="card">No matches found. Try a different term.</div>';
-                return;
-            }
-
-            resultsDiv.innerHTML = items.map(item => `
+        function render(items) {
+            const container = document.getElementById('results');
+            container.innerHTML = items.map(item => `
                 <div class="card">
-                    <div style="display: flex; gap: 5px; margin-bottom: 5px;">
-                        ${item.keywords.map(k => `<span class="keyword-tag">${k}</span>`).join('')}
-                    </div>
-                    <h3>${item.name}</h3>
-                    ${item.description ? `<span class="description">${item.description}</span>` : ''}
-                    <div class="freq-container">
-                        ${item.frequencies.map(f => `<span class="freq-pill">${f} Hz</span>`).join('')}
-                    </div>
+                    <h3 style="margin:0">${item.name}</h3>
+                    <span class="description">${item.description || 'No specific notes.'}</span>
+                    <div>${item.frequencies.map(f => `<span class="freq-pill">${f} Hz</span>`).join('')}</div>
                 </div>
             `).join('');
         }
 
-        // 3. Advanced Search Logic (Name + Keywords + Frequency)
         document.getElementById('searchInput').addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase().trim();
-            
-            const filtered = frequencyData.filter(item => {
-                // Check Name
-                const nameMatch = item.name.toLowerCase().includes(term);
-                
-                // Check Keywords
-                const keywordMatch = item.keywords.some(k => k.toLowerCase().includes(term));
-                
-                // Check Frequencies (searches the list of numbers as strings)
-                const freqMatch = item.frequencies.some(f => f.toString().includes(term));
-                
-                return nameMatch || keywordMatch || freqMatch;
-            });
-
-            updateUI(filtered);
+            const term = e.target.value.toLowerCase();
+            const filtered = frequencyData.filter(i => 
+                i.name.toLowerCase().includes(term) || 
+                i.frequencies.some(f => f.toString().includes(term))
+            );
+            render(filtered);
         });
 
-        // Start
         loadData();
     </script>
-
 </body>
 </html>
