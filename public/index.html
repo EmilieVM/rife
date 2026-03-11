@@ -3,106 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frequency Therapy App</title>
+    <title>Rife Pro | Precision Frequency Suite</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        input { width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px; }
-        .result-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
-        .result-item:hover { background: #f0f7ff; }
-        .details { margin-top: 20px; padding: 15px; border: 1px solid #007bff; border-radius: 4px; display: none; }
-        .play-btn { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --border: #e2e8f0;
+        }
+        body.dark-mode {
+            --bg: #020617; --card: #0f172a; --text: #f1f5f9; --border: #1e293b;
+        }
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            max-width: 600px; margin: 0 auto; padding: 20px; 
+            background: var(--bg); color: var(--text); transition: background 0.3s;
+        }
+
+        /* Header & Stripe */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .nav-btns { display: flex; gap: 10px; }
+        .btn { padding: 8px 15px; border-radius: 10px; cursor: pointer; border: 1px solid var(--border); font-weight: 600; font-size: 13px; text-decoration: none; background: var(--card); color: var(--text); }
+        .btn-support { background: var(--primary); color: white; border: none; box-shadow: 0 4px 10px var(--primary-glow); }
+
+        /* Search & History */
+        .search-box { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid var(--border); background: var(--card); color: var(--text); font-size: 16px; margin-bottom: 10px; outline: none; box-sizing: border-box; }
+        .search-box:focus { border-color: var(--primary); }
+        .history-tag { display: inline-block; padding: 5px 10px; background: var(--border); border-radius: 20px; font-size: 12px; margin-right: 5px; margin-bottom: 15px; cursor: pointer; opacity: 0.8; }
+
+        /* Dashboard & Volume */
+        .dashboard { background: var(--card); border: 2px solid var(--primary); padding: 20px; border-radius: 20px; margin-bottom: 25px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .vol-label { display: flex; justify-content: space-between; font-weight: 800; margin-bottom: 10px; color: var(--primary); }
+        input[type="range"] { width: 100%; height: 10px; accent-color: var(--primary); cursor: pointer; appearance: none; background: var(--border); border-radius: 5px; }
+
+        /* Controls */
+        .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
+        .duration-select { padding: 5px; border-radius: 5px; border: 1px solid var(--border); background: var(--card); color: var(--text); }
+        .stop-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; }
+
+        /* Frequency Cards */
+        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 15px; margin-bottom: 15px; }
+        .freq-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .freq-btn { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-weight: 700; cursor: pointer; font-family: monospace; transition: 0.2s; }
+        
+        /* THE INDIGO HIGHLIGHT FIX */
+        .freq-btn.is-active { 
+            background: var(--primary) !important; color: white !important; 
+            border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow);
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Frequency Finder</h2>
-    <input type="text" id="searchInput" placeholder="Search by name, keyword, or frequency (e.g. 741)...">
-    
+    <div class="header">
+        <h1 style="margin:0; font-size: 24px; letter-spacing: -1px;">RIFE PRO</h1>
+        <div class="nav-btns">
+            <button onclick="document.body.classList.toggle('dark-mode')" class="btn">🌓 Mode</button>
+            <a href="https://buy.stripe.com/7sYdRbglJcHk3s6fzQ8ww01" target="_blank" class="btn btn-support">Support</a>
+        </div>
+    </div>
+
+    <input type="text" id="search" class="search-box" placeholder="Search (e.g. 741, Hives, Pain)...">
+    <div id="history"></div>
+
+    <div class="dashboard">
+        <div class="vol-label">
+            <span>MASTER VOLUME</span>
+            <span id="volNum">50%</span>
+        </div>
+        <input type="range" id="volSlider" min="0" max="1" step="0.01" value="0.5">
+        
+        <div class="controls">
+            <div>
+                <label style="font-size: 12px; font-weight: bold;">DURATION:</label>
+                <select id="duration" class="duration-select">
+                    <option value="60">1 Min</option>
+                    <option value="300">5 Mins</option>
+                    <option value="600">10 Mins</option>
+                    <option value="0">Continuous</option>
+                </select>
+            </div>
+            <button id="stopBtn" class="stop-btn" onclick="stop()">STOP</button>
+        </div>
+        <div id="status" style="font-size: 11px; margin-top: 10px; font-weight: bold; opacity: 0.6;">SYSTEM READY</div>
+    </div>
+
     <div id="results"></div>
 
-    <div id="detailsArea" class="details">
-        <h3 id="detailName"></h3>
-        <p><strong>Description:</strong> <span id="detailDesc"></span></p>
-        <p><strong>Frequencies:</strong> <span id="detailFreqs"></span></p>
-        <button class="play-btn" onclick="playFrequency()">Play First Frequency</button>
-    </div>
-</div>
+    <script>
+        let ctx = null;
+        let mainGain = null;
+        let osc = null;
+        let activeHz = null;
+        let timer = null;
+        let searchHistory = JSON.parse(localStorage.getItem('rife_history') || '[]');
 
-<script>
-    // Embedded data from frequencies.json
-    const frequencyData = [
-        { "name": "Acne", "description": "run 564 for 6 min", "frequencies": [2720.0, 2170.0, 1800.0, 1600.0, 1550.0, 1552.0, 1500.0, 802.0, 880.0, 778.0, 787.0, 760.0, 741.0, 727.0, 660.0, 564.0, 465.0, 450.0, 444.0, 428.0], "keywords": ["acne", "for", "run", "min"], "source": "Electroherbalism CAFL" },
-        { "name": "Solfeggio 741 Hz - Awakening Intuition", "description": "Associated with solving problems, awakening intuition, and cleansing toxins.", "frequencies": [741.0], "keywords": ["solfeggio", "intuition", "awakening", "cleansing"], "source": "Solfeggio" },
-        { "name": "ALS 4", "description": "also use for MS", "frequencies": [10000.0, 5000.0, 2900.0, 2750.0, 2700.0, 2145.0, 938.0, 862.0, 841.0, 777.0, 766.0, 741.0, 739.0, 688.0, 682.0, 660.0, 572.0, 532.0, 520.0, 477.0, 442.0, 433.0, 344.0, 343.0, 342.0, 338.0, 324.0, 322.0, 253.0, 242.0, 112.0], "keywords": ["als", "also", "for", "use"], "source": "Electroherbalism CAFL" }
-        // ... more data can be added here
-    ];
-
-    let currentFreq = 0;
-    let audioCtx = null;
-
-    const searchInput = document.getElementById('searchInput');
-    const resultsDiv = document.getElementById('results');
-
-    searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
-        resultsDiv.innerHTML = '';
-        
-        if (query.length < 2) return;
-
-        const filtered = frequencyData.filter(item => {
-            // Check Name
-            if (item.name.toLowerCase().includes(query)) return true;
-            // Check Keywords
-            if (item.keywords.some(k => k.toLowerCase().includes(query))) return true;
-            // FIX: Check Frequencies Array
-            if (item.frequencies.some(f => f.toString().includes(query))) return true;
-            return false;
-        });
-
-        filtered.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'result-item';
-            div.innerText = item.name;
-            div.onclick = () => showDetails(item);
-            resultsDiv.appendChild(div);
-        });
-    });
-
-    function showDetails(item) {
-        document.getElementById('detailsArea').style.display = 'block';
-        document.getElementById('detailName').innerText = item.name;
-        document.getElementById('detailDesc').innerText = item.description || "No description available.";
-        document.getElementById('detailFreqs').innerText = item.frequencies.join(', ');
-        currentFreq = item.frequencies[0]; // Pick the first frequency to play
-    }
-
-    function playFrequency() {
-        // AUDIO FIX: Initialize/Resume context on click
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
+        function init() {
+            if (!ctx) {
+                ctx = new (window.AudioContext || window.webkitAudioContext)();
+                mainGain = ctx.createGain();
+                mainGain.connect(ctx.destination);
+            }
+            if (ctx.state === 'suspended') ctx.resume();
         }
 
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
+        // --- VOLUME FIX ---
+        document.getElementById('volSlider').oninput = function() {
+            init();
+            const val = this.value;
+            document.getElementById('volNum').innerText = Math.round(val * 100) + '%';
+            if (mainGain) mainGain.gain.setTargetAtTime(val, ctx.currentTime, 0.01);
+        };
 
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(currentFreq, audioCtx.currentTime);
-        
-        // VOLUME FIX: Ensure gain is connected to destination
-        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); // 10% volume
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
+        function stop() {
+            if (osc) { osc.stop(); osc.disconnect(); osc = null; }
+            if (timer) { clearTimeout(timer); timer = null; }
+            activeHz = null;
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('status').innerText = 'SIGNAL STOPPED';
+            updateHighlights();
+        }
 
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 2); // Play for 2 seconds
-    }
-</script>
+        function play(hz) {
+            init();
+            if (activeHz === hz) { stop(); return; }
+            stop();
 
+            osc = ctx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.value = hz;
+            osc.connect(mainGain);
+            
+            mainGain.gain.value = document.getElementById('volSlider').value;
+            
+            osc.start();
+            activeHz = hz;
+
+            // Duration Logic
+            const dur = parseInt(document.getElementById('duration').value);
+            if (dur > 0) {
+                timer = setTimeout(() => { stop(); }, dur * 1000);
+                document.getElementById('status').innerText = `PLAYING: ${hz}HZ (${dur/60}m)`;
+            } else {
+                document.getElementById('status').innerText = `PLAYING: ${hz}HZ (∞)`;
+            }
+
+            document.getElementById('stopBtn').style.display = 'block';
+            updateHighlights();
+        }
+
+        function updateHighlights() {
+            document.querySelectorAll('.freq-btn').forEach(btn => {
+                btn.classList.toggle('is-active', parseFloat(btn.innerText) === activeHz);
+            });
+        }
+
+        // --- DATA & SEARCH FIX ---
+        let db = [];
+        async function loadData() {
+            try {
+                const r = await fetch('frequencies.json');
+                db = await r.json();
+            } catch(e) {
+                // Fallback demo data
+                db = [
+                    {name: "Acne", description: "run 564 for 6 min", frequencies: [2720, 741, 564]},
+                    {name: "Solfeggio 741", description: "Cleansing", frequencies: [741]}
+                ];
+            }
+            render(db);
+            renderHistory();
+        }
+
+        function render(data) {
+            const container = document.getElementById('results');
+            container.innerHTML = data.map(item => `
+                <div class="card">
+                    <h3 style="margin:0; font-size: 18px;">${item.name}</h3>
+                    <p style="margin:5px 0; font-size:12px; opacity:0.7;">${item.description || ''}</p>
+                    <div class="freq-grid">
+                        ${item.frequencies.map(f => `
+                            <button class="freq-btn ${activeHz === f ? 'is-active' : ''}" onclick="play(${f})">${f}</button>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('search').onchange = function() {
+            const val = this.value.trim();
+            if (val && !searchHistory.includes(val)) {
+                searchHistory.unshift(val);
+                if (searchHistory.length > 5) searchHistory.pop();
+                localStorage.setItem('rife_history', JSON.stringify(searchHistory));
+                renderHistory();
+            }
+        };
+
+        document.getElementById('search').oninput = function() {
+            const t = this.value.toLowerCase();
+            const filtered = db.filter(i => 
+                i.name.toLowerCase().includes(t) || 
+                i.frequencies.some(f => f.toString().includes(t))
+            );
+            render(filtered);
+            updateHighlights();
+        };
+
+        function renderHistory() {
+            const hDiv = document.getElementById('history');
+            hDiv.innerHTML = searchHistory.map(h => `
+                <span class="history-tag" onclick="runSearch('${h}')">${h}</span>
+            `).join('');
+        }
+
+        function runSearch(val) {
+            document.getElementById('search').value = val;
+            document.getElementById('search').dispatchEvent(new Event('input'));
+        }
+
+        loadData();
+    </script>
 </body>
 </html>
