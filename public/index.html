@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rife Pro | Precision Frequency Explorer</title>
+    <title>Rife Pro | Universal Frequency Suite</title>
     <style>
         :root {
             --primary: #6366f1;
@@ -31,72 +31,68 @@
 
         body { 
             font-family: 'Inter', system-ui, -apple-system, sans-serif; 
-            max-width: 800px; margin: 0 auto; padding: 25px; 
+            max-width: 800px; margin: 0 auto; padding: 20px; 
             background: var(--bg); color: var(--text); transition: background 0.3s;
         }
 
-        /* Navigation */
-        .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .logo { font-size: 24px; font-weight: 900; letter-spacing: -1.5px; color: var(--primary); }
-        .btn-group { display: flex; gap: 10px; }
-        .btn { padding: 10px 18px; border-radius: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-weight: 600; text-decoration: none; font-size: 13px; transition: 0.2s; }
+        /* Nav */
+        .nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .logo { font-size: 24px; font-weight: 900; color: var(--primary); }
+        .btn-group { display: flex; gap: 8px; }
+        .btn { padding: 10px 16px; border-radius: 12px; cursor: pointer; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-weight: 600; text-decoration: none; font-size: 13px; }
         .btn-support { background: var(--primary); color: white; border: none; box-shadow: 0 4px 12px var(--primary-glow); }
-        .btn-support:hover { transform: translateY(-1px); box-shadow: 0 6px 15px var(--primary-glow); }
 
         /* 1. SEARCH SECTION (TOP) */
-        .search-section { margin-bottom: 25px; }
+        .search-section { margin-bottom: 20px; }
         .search-box { 
-            width: 100%; padding: 20px 25px; font-size: 18px; border: 2px solid var(--border); 
-            border-radius: 20px; background: var(--card-bg); color: var(--text); box-sizing: border-box;
-            box-shadow: 0 4px 20px -5px rgba(0,0,0,0.1); outline: none; transition: border-color 0.2s;
+            width: 100%; padding: 18px 24px; font-size: 17px; border: 2px solid var(--border); 
+            border-radius: 18px; background: var(--card-bg); color: var(--text); box-sizing: border-box;
+            box-shadow: 0 4px 15px -5px rgba(0,0,0,0.05); outline: none;
         }
-        .search-box:focus { border-color: var(--primary); }
-        .history-bar { display: flex; gap: 8px; overflow-x: auto; padding: 12px 0; scrollbar-width: none; }
-        .history-item { background: var(--card-bg); padding: 6px 14px; border-radius: 99px; cursor: pointer; white-space: nowrap; font-size: 12px; border: 1px solid var(--border); color: var(--sub-text); transition: 0.2s; }
-        .history-item:hover { border-color: var(--primary); color: var(--primary); }
+        .history-bar { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
+        .history-item { background: var(--card-bg); padding: 5px 12px; border-radius: 99px; cursor: pointer; white-space: nowrap; font-size: 11px; border: 1px solid var(--border); color: var(--sub-text); }
 
         /* 2. DASHBOARD (MIDDLE) */
         .dashboard {
-            background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px;
-            padding: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 25px; margin-bottom: 35px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px;
+            padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.02);
         }
-        .control-group { display: flex; flex-direction: column; gap: 10px; }
-        label { font-size: 11px; font-weight: 800; color: var(--sub-text); text-transform: uppercase; letter-spacing: 1px; }
+        .control-group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-size: 11px; font-weight: 800; color: var(--sub-text); text-transform: uppercase; letter-spacing: 0.5px; }
         
-        /* Volume Slider Customization */
-        input[type="range"] { accent-color: var(--primary); cursor: pointer; height: 8px; border-radius: 10px; }
-        .vol-label-container { display: flex; justify-content: space-between; align-items: center; }
-        .vol-value { font-family: monospace; font-weight: 800; color: var(--primary); font-size: 14px; }
+        /* Fixed Volume Slider */
+        .vol-header { display: flex; justify-content: space-between; }
+        .vol-val { color: var(--primary); font-weight: 800; font-family: monospace; }
+        input[type="range"] { accent-color: var(--primary); cursor: pointer; height: 10px; width: 100%; }
 
-        select { padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-weight: 600; }
+        select { padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-weight: 600; }
 
-        .status-panel { background: var(--bg); padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .status-info { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 14px; }
-        .pulse-dot { width: 10px; height: 10px; background: #94a3b8; border-radius: 50%; }
-        .active .pulse-dot { background: var(--accent); box-shadow: 0 0 12px var(--accent); animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-        .btn-stop { background: var(--stop); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer; display: none; }
+        .status-box { background: var(--bg); padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .status-info { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px; }
+        .dot { width: 10px; height: 10px; background: #cbd5e1; border-radius: 50%; }
+        .active .dot { background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .btn-stop { background: var(--stop); color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: none; }
 
         /* 3. RESULTS (BOTTOM) */
-        .card { background: var(--card-bg); border-radius: 20px; padding: 25px; margin-bottom: 18px; border: 1px solid var(--border); transition: 0.2s; }
-        .card:hover { border-color: var(--primary-glow); }
-        .card h3 { margin: 0 0 8px 0; font-size: 19px; color: var(--primary); }
-        .card p { margin: 0 0 18px 0; font-size: 14px; color: var(--sub-text); line-height: 1.4; }
+        .card { background: var(--card-bg); border-radius: 18px; padding: 22px; margin-bottom: 15px; border: 1px solid var(--border); }
+        .card h3 { margin: 0 0 4px 0; font-size: 18px; color: var(--primary); }
+        .card p { margin: 0 0 15px 0; font-size: 13px; color: var(--sub-text); line-height: 1.4; }
 
-        .freq-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .freq-grid { display: flex; flex-wrap: wrap; gap: 6px; }
         .freq-btn { 
-            background: var(--pill-bg); color: var(--pill-text); padding: 12px 18px; border-radius: 12px; 
-            font-family: 'JetBrains Mono', monospace; font-weight: 700; cursor: pointer; border: 2px solid transparent; 
-            transition: all 0.2s; font-size: 14px;
+            background: var(--pill-bg); color: var(--pill-text); padding: 10px 14px; border-radius: 10px; 
+            font-family: monospace; font-weight: 700; cursor: pointer; border: 2px solid transparent; 
+            transition: all 0.2s; font-size: 13px;
         }
         /* ACTIVE HIGHLIGHT */
         .freq-btn.is-active { 
             background: var(--primary) !important; color: white !important; 
-            box-shadow: 0 0 15px var(--primary-glow); border-color: white; transform: translateY(-2px);
+            box-shadow: 0 0 15px var(--primary-glow); border-color: white; transform: scale(1.05);
         }
 
-        .disclaimer { font-size: 11px; color: var(--sub-text); text-align: center; margin-top: 60px; opacity: 0.5; font-style: italic; }
+        .disclaimer { font-size: 11px; color: var(--sub-text); text-align: center; margin-top: 50px; opacity: 0.6; line-height: 1.5; }
     </style>
 </head>
 <body>
@@ -104,172 +100,145 @@
     <header class="nav-header">
         <div class="logo">RIFE PRO</div>
         <div class="btn-group">
-            <button class="btn" onclick="toggleDarkMode()" id="darkToggle">🌙 Dark Mode</button>
-            <a href="https://buy.stripe.com/7sYdRbglJcHk3s6fzQ8ww01" target="_blank" class="btn btn-support">Support Project</a>
+            <button class="btn" onclick="toggleDarkMode()" id="darkToggle">🌙 Mode</button>
+            <a href="https://buy.stripe.com/7sYdRbglJcHk3s6fzQ8ww01" target="_blank" class="btn btn-support">Support</a>
         </div>
     </header>
 
-    <section class="search-section">
-        <input type="text" id="searchInput" class="search-box" placeholder="Search conditions, keywords, or Hz...">
+    <div class="search-section">
+        <input type="text" id="searchInput" class="search-box" placeholder="Search (Hives, DNA, Abdominal, 528)...">
         <div id="historyBar" class="history-bar"></div>
-    </section>
+    </div>
 
-    <section class="dashboard">
+    <div class="dashboard">
         <div class="control-group">
-            <div class="vol-label-container">
-                <label>Master Output Volume</label>
-                <span id="volValue" class="vol-value">50%</span>
-            </div>
+            <div class="vol-header"><label>Volume</label><span id="volDisp" class="vol-val">50%</span></div>
             <input type="range" id="volume" min="0" max="1" step="0.01" value="0.5">
         </div>
-        
         <div class="control-group">
-            <label>Auto-Stop Timer</label>
+            <label>Timer</label>
             <select id="duration">
-                <option value="continuous" selected>Continuous Play</option>
+                <option value="continuous" selected>Continuous</option>
                 <option value="30">30 Seconds</option>
                 <option value="600">10 Minutes</option>
                 <option value="1200">20 Minutes</option>
-                <option value="1800">30 Minutes</option>
             </select>
         </div>
-
         <div class="control-group">
-            <label>Signal Status</label>
-            <div id="statusBox" class="status-panel">
-                <div class="status-info"><div class="pulse-dot"></div><span id="statusTxt">Ready</span></div>
-                <button id="stopBtn" class="btn-stop" onclick="stopFrequency()">STOP SIGNAL</button>
+            <label>Signal</label>
+            <div id="statusBox" class="status-box">
+                <div class="status-info"><div class="dot"></div><span id="statusTxt">Standby</span></div>
+                <button id="stopBtn" class="btn-stop" onclick="stopTone()">STOP</button>
             </div>
         </div>
-    </section>
+    </div>
 
-    <main id="results"></main>
+    <div id="results"></div>
 
-    <footer class="disclaimer">
-        Experimental Research Tool. Pure Sine Wave Generation. Not a medical device. Always consult a health professional.
-    </footer>
+    <div class="disclaimer">
+        <b>Experimental Laboratory Tool.</b><br>
+        Note: Frequencies below 40Hz may not be audible on standard mobile or laptop speakers.<br>
+        Pure Sine Wave Generation. Not a medical device.
+    </div>
 
     <script>
-        // --- AUDIO ENGINE CORE ---
+        // --- AUDIO ENGINE ---
         let audioCtx = null;
         let masterGain = null;
-        let oscillator = null;
-        let activeHz = null;
-        let stopTimer = null;
+        let activeOsc = null;
+        let currentHz = null;
+        let timer = null;
 
-        // Force Audio Initialization on any user interaction
-        function ensureAudioStarted() {
+        function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 masterGain = audioCtx.createGain();
                 masterGain.connect(audioCtx.destination);
-                
-                // Sync slider volume immediately
-                const currentSliderVal = document.getElementById('volume').value;
-                masterGain.gain.setValueAtTime(currentSliderVal, audioCtx.currentTime);
+                masterGain.gain.setValueAtTime(document.getElementById('volume').value, audioCtx.currentTime);
             }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        // Live Volume Update Logic
+        // Live Volume Control
         document.getElementById('volume').addEventListener('input', (e) => {
-            ensureAudioStarted(); // Ensure context is awake
-            const val = parseFloat(e.target.value);
-            document.getElementById('volValue').innerText = `${Math.round(val * 100)}%`;
-            
+            initAudio();
+            const v = parseFloat(e.target.value);
+            document.getElementById('volDisp').innerText = Math.round(v * 100) + '%';
             if (masterGain) {
-                // Use instant value assignment for slider responsiveness
-                masterGain.gain.value = val;
+                // Smooth ramp to prevent clicking sounds while sliding
+                masterGain.gain.setTargetAtTime(v, audioCtx.currentTime, 0.02);
             }
         });
 
-        const solfeggioData = [
-            { "name": "Solfeggio 174 Hz", "description": "Foundation / Pain Reduction", "frequencies": [174], "keywords": ["pain"] },
-            { "name": "Solfeggio 285 Hz", "description": "Healing Tissue & Organs", "frequencies": [285], "keywords": ["healing"] },
-            { "name": "Solfeggio 396 Hz", "description": "Liberating Guilt & Fear", "frequencies": [396], "keywords": ["fear"] },
-            { "name": "Solfeggio 417 Hz", "description": "Undoing Situations / Change", "frequencies": [417], "keywords": ["change"] },
-            { "name": "Solfeggio 528 Hz", "description": "DNA Repair / Miracles", "frequencies": [528], "keywords": ["dna", "528"] },
-            { "name": "Solfeggio 639 Hz", "description": "Connecting / Relationships", "frequencies": [639], "keywords": ["love"] },
-            { "name": "Solfeggio 741 Hz", "description": "Intuition / Expression", "frequencies": [741], "keywords": ["cleansing"] },
-            { "name": "Solfeggio 852 Hz", "description": "Spiritual Order / Clarity", "frequencies": [852], "keywords": ["spiritual"] },
-            { "name": "Solfeggio 963 Hz", "description": "Divine Consciousness", "frequencies": [963], "keywords": ["963", "crown"] },
-            { "name": "Hives (Urticaria)", "description": "Skin allergy and rash frequencies", "frequencies": [1800, 880, 787, 727, 522, 146, 4.9], "keywords": ["hives", "rash", "skin"] }
-        ];
-
-        let database = [];
-        let history = JSON.parse(localStorage.getItem('rife_history')) || [];
-
-        function stopFrequency() {
-            if (oscillator) {
-                oscillator.stop();
-                oscillator.disconnect();
-                oscillator = null;
+        function stopTone() {
+            if (activeOsc) {
+                activeOsc.stop();
+                activeOsc.disconnect();
+                activeOsc = null;
             }
-            if (stopTimer) clearTimeout(stopTimer);
-            
-            activeHz = null;
-            // Clear highlights
+            if (timer) clearTimeout(timer);
+            currentHz = null;
             document.querySelectorAll('.freq-btn').forEach(b => b.classList.remove('is-active'));
-            
-            // Reset UI Status
             document.getElementById('statusBox').classList.remove('active');
-            document.getElementById('statusTxt').innerText = 'Ready';
+            document.getElementById('statusTxt').innerText = 'Standby';
             document.getElementById('stopBtn').style.display = 'none';
         }
 
-        function playFrequency(hz) {
-            ensureAudioStarted(); // Wake context
-            
-            // If clicking the same one twice, stop it
-            if (activeHz === hz) {
-                stopFrequency();
-                return;
-            }
+        function playTone(hz) {
+            initAudio();
+            if (currentHz === hz) { stopTone(); return; }
+            stopTone();
 
-            stopFrequency(); // Stop any existing sound first
+            activeOsc = audioCtx.createOscillator();
+            activeOsc.type = 'sine';
+            activeOsc.frequency.setValueAtTime(hz, audioCtx.currentTime);
+            activeOsc.connect(masterGain);
+            activeOsc.start();
 
-            oscillator = audioCtx.createOscillator();
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(hz, audioCtx.currentTime);
-
-            oscillator.connect(masterGain);
-            oscillator.start();
-
-            activeHz = hz;
-
-            // UI Feedback
+            currentHz = hz;
             document.getElementById('statusBox').classList.add('active');
-            document.getElementById('statusTxt').innerText = `${hz} Hz Generating`;
+            document.getElementById('statusTxt').innerText = hz + 'Hz Playing';
             document.getElementById('stopBtn').style.display = 'block';
 
-            // Highlighting
-            document.querySelectorAll('.freq-btn').forEach(btn => {
-                if(parseFloat(btn.innerText) === hz) btn.classList.add('is-active');
-            });
-
-            // Timer Implementation
-            const duration = document.getElementById('duration').value;
-            if (duration !== 'continuous') {
-                stopTimer = setTimeout(() => { stopFrequency(); }, parseFloat(duration) * 1000);
+            // Timer
+            const d = document.getElementById('duration').value;
+            if (d !== 'continuous') {
+                timer = setTimeout(stopTone, parseFloat(d) * 1000);
             }
+            
+            // Highlight the correct button
+            updateHighlights();
         }
 
-        // --- SEARCH & DATA HANDLING ---
-        async function loadData() {
+        function updateHighlights() {
+            document.querySelectorAll('.freq-btn').forEach(btn => {
+                const btnHz = parseFloat(btn.dataset.hz);
+                if (btnHz === currentHz) btn.classList.add('is-active');
+                else btn.classList.remove('is-active');
+            });
+        }
+
+        // --- DATA & SEARCH ---
+        const solfeggio = [
+            { "name": "Solfeggio 528 Hz", "description": "DNA Repair & Miracles", "frequencies": [528] },
+            { "name": "Solfeggio 963 Hz", "description": "Divine Consciousness", "frequencies": [963] },
+            { "name": "Hives Relief", "description": "Frequencies for skin rash and urticaria", "frequencies": [1800, 880, 787, 727, 522, 146, 4.9] }
+        ];
+
+        let db = [];
+        let history = JSON.parse(localStorage.getItem('rife_history')) || [];
+
+        async function init() {
             try {
                 const res = await fetch('frequencies.json');
-                const jsonData = await res.json();
-                database = [...solfeggioData, ...jsonData];
-            } catch (e) {
-                database = solfeggioData;
-            }
-            renderResults(database);
+                const json = await res.json();
+                db = [...solfeggio, ...json];
+            } catch (e) { db = solfeggio; }
+            render(db);
             updateHistoryUI();
         }
 
-        function renderResults(data) {
+        function render(data) {
             const container = document.getElementById('results');
             container.innerHTML = data.map(item => `
                 <div class="card">
@@ -277,9 +246,10 @@
                     <p>${item.description || ''}</p>
                     <div class="freq-grid">
                         ${(item.frequencies || []).map(f => `
-                            <button class="freq-btn ${activeHz === f ? 'is-active' : ''}" 
-                                    onclick="playFrequency(${f})">
-                                ${f}
+                            <button class="freq-btn ${currentHz === f ? 'is-active' : ''}" 
+                                    data-hz="${f}" 
+                                    onclick="playTone(${f})">
+                                ${f}Hz
                             </button>
                         `).join('')}
                     </div>
@@ -288,15 +258,14 @@
         }
 
         document.getElementById('searchInput').addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase().trim();
-            const filtered = database.filter(i => {
-                const searchString = `${i.name} ${i.description} ${(i.keywords || []).join(' ')} ${(i.frequencies || []).join(' ')}`.toLowerCase();
-                return searchString.includes(term);
+            const t = e.target.value.toLowerCase().trim();
+            const filtered = db.filter(i => {
+                const s = `${i.name} ${i.description} ${(i.keywords || []).join(' ')} ${(i.frequencies || []).join(' ')}`.toLowerCase();
+                return s.includes(t);
             });
-            renderResults(filtered);
+            render(filtered);
         });
 
-        // Search History Logic
         document.getElementById('searchInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && e.target.value.trim() !== '') {
                 const val = e.target.value.trim();
@@ -313,19 +282,19 @@
             document.getElementById('historyBar').innerHTML = history.map(h => `<span class="history-item" onclick="quickSearch('${h}')">${h}</span>`).join('');
         }
 
-        function quickSearch(term) {
-            document.getElementById('searchInput').value = term;
+        function quickSearch(t) {
+            document.getElementById('searchInput').value = t;
             document.getElementById('searchInput').dispatchEvent(new Event('input'));
         }
 
         function toggleDarkMode() {
             const isDark = document.body.classList.toggle('dark-mode');
-            document.getElementById('darkToggle').innerText = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+            document.getElementById('darkToggle').innerText = isDark ? '☀️ Light' : '🌙 Dark';
             localStorage.setItem('rife_theme', isDark ? 'dark' : 'light');
         }
         if (localStorage.getItem('rife_theme') === 'dark') toggleDarkMode();
 
-        loadData();
+        init();
     </script>
 </body>
 </html>
