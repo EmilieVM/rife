@@ -36,7 +36,14 @@ input[type="range"] { width: 100%; height: 10px; accent-color: var(--primary); c
 .stop-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; }
 .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 15px; margin-bottom: 15px; }
 .freq-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-.freq-btn { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-weight: 700; cursor: pointer; font-family: monospace; transition: 0.2s; }
+.freq-btn {
+  padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--bg); color: var(--text); font-weight: 700;
+  cursor: pointer; font-family: monospace; transition: 0.2s;
+  /* Removes 300ms tap delay on mobile */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
 .freq-btn.is-active {
   background: var(--primary) !important; color: white !important;
   border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow);
@@ -88,24 +95,49 @@ input[type="range"] { width: 100%; height: 10px; accent-color: var(--primary); c
   let timer = null;
   let searchHistory = JSON.parse(localStorage.getItem('rife_history') || '[]');
 
-  // KEY FIX 1: init() is now async and AWAITS ctx.resume().
-  // Previously, resume() returned a Promise that was never awaited,
-  // so the oscillator started while the AudioContext was still suspended → silence.
-  async function init() {
+  // ─── SAFARI / OPERA / iOS FIX ─────────────────────────────────────────────
+  //
+  // Safari kills the "user gesture window" the moment code leaves the
+  // synchronous call stack — even for one microtask tick. This means:
+  //   - async/await inside a click handler BREAKS audio on Safari/Opera
+  //   - AudioContext must be created and resume() called SYNCHRONOUSLY
+  //   - Safari also needs a silent 1-sample buffer played to fully unlock
+  //
+  // Solution: play() is now fully synchronous. If resume() is needed,
+  // we use .then() (not await) so the gesture context is never abandoned.
+  // ──────────────────────────────────────────────────────────────────────────
+
+  function setupAudio() {
+    // Create AudioContext synchronously on first call
     if (!ctx) {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
       mainGain = ctx.createGain();
+      mainGain.gain.value = parseFloat(document.getElementById('volSlider').value);
       mainGain.connect(ctx.destination);
     }
-    // Always await resume — this is safe to call even if already running
-    if (ctx.state !== 'running') {
-      await ctx.resume();
+
+    if (ctx.state === 'suspended') {
+      // Safari-specific unlock: play a silent 1-sample buffer.
+      // This signals to WebKit that audio is intentional and unlocks the engine.
+      try {
+        const buf = ctx.createBuffer(1, 1, 22050);
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(ctx.destination);
+        src.start(0);
+      } catch (e) {}
+
+      // Also call resume() — needed on Chrome/Firefox/Opera
+      ctx.resume();
     }
   }
 
-  // Volume slider: update display and live-adjust gain if audio is playing.
-  // Does NOT call init() — creating AudioContext before a play click
-  // can trigger browser autoplay blocks, causing silence.
+  // Pre-unlock on ANY first interaction with the page (covers Safari edge cases)
+  ['touchstart', 'mousedown', 'click'].forEach(type => {
+    document.addEventListener(type, setupAudio, { once: true, passive: true });
+  });
+
+  // Volume slider: update display and smoothly adjust gain if audio is playing
   document.getElementById('volSlider').oninput = function () {
     const val = parseFloat(this.value);
     document.getElementById('volNum').innerText = Math.round(val * 100) + '%';
@@ -120,8 +152,6 @@ input[type="range"] { width: 100%; height: 10px; accent-color: var(--primary); c
       try { osc.disconnect(); } catch (e) {}
       osc = null;
     }
-    // KEY FIX 2: restore gain after stopping so the next play() isn't silent.
-    // If gain was ramped or modified during playback, this resets it cleanly.
     if (mainGain && ctx) {
       mainGain.gain.cancelScheduledValues(ctx.currentTime);
       mainGain.gain.value = parseFloat(document.getElementById('volSlider').value);
@@ -133,15 +163,28 @@ input[type="range"] { width: 100%; height: 10px; accent-color: var(--primary); c
     updateHighlights();
   }
 
-  // KEY FIX 3: play() is now async and AWAITS init(),
-  // guaranteeing the AudioContext is fully running before the oscillator starts.
-  async function play(hz) {
-    await init();
+  // play() is intentionally NOT async — no await anywhere in this function.
+  // Safari cancels the gesture window on the first await, blocking all audio.
+  // Instead we use .then() which keeps the initial call synchronous.
+  function play(hz) {
+    // Synchronous setup — must happen before any .then() or await
+    setupAudio();
 
+    // If context is already running, start immediately (normal path)
+    if (ctx.state === 'running') {
+      startOsc(hz);
+      return;
+    }
+
+    // Context needs to resume first — use .then() not await
+    ctx.resume().then(() => startOsc(hz));
+  }
+
+  // Separated from play() so the oscillator setup is clean and reusable
+  function startOsc(hz) {
     if (activeHz === hz) { stopAudio(); return; }
     stopAudio();
 
-    // Set gain BEFORE connecting oscillator to avoid any transient silence
     mainGain.gain.value = parseFloat(document.getElementById('volSlider').value);
 
     osc = ctx.createOscillator();
