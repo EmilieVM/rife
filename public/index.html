@@ -3,247 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rife Frequency Finder v2</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Rife Frequency Database</title>
     <style>
-        .frequency-card { transition: all 0.2s ease; }
-        .frequency-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        .btn-active { 
-            background-color: #10b981 !important; 
-            color: white !important;
-            border-color: #059669 !important;
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --text: #1e293b;
         }
-        body.dark-mode { background-color: #0f172a; color: #f8fafc; }
-        .dark-mode .bg-white { background-color: #1e293b !important; color: #f8fafc; border-color: #334155; }
-        .dark-mode .text-slate-800 { color: #f1f5f9; }
-        .dark-mode .text-slate-500 { color: #94a3b8; }
-        .dark-mode input, .dark-mode select { background-color: #0f172a; color: white; border: 1px solid #475569; }
-        .dark-mode .bg-indigo-50 { background-color: #312e81; color: #e0e7ff; border-color: #4338ca; }
-        .dark-mode header { background-color: #1e1b4b; }
-        .dark-mode .history-pill { background-color: #312e81; color: #c7d2fe; border: 1px solid #4338ca; }
-        .dark-mode .history-pill:hover { background-color: #4338ca; color: white; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            max-width: 900px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: var(--bg); 
+            color: var(--text);
+        }
+        .header { text-align: center; margin-bottom: 40px; }
+        .search-container {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            background: var(--bg);
+            padding-bottom: 20px;
+        }
+        .search-box { 
+            width: 100%; 
+            padding: 15px 20px; 
+            font-size: 18px; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-box:focus { border-color: var(--primary); }
+        .card { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 24px; 
+            margin-bottom: 16px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #f1f5f9;
+        }
+        .card h3 { margin: 0 0 8px 0; color: var(--primary); font-size: 1.4rem; }
+        .description { color: #64748b; font-style: italic; margin-bottom: 15px; display: block; }
+        .freq-container { display: flex; flex-wrap: wrap; gap: 8px; }
+        .freq-pill { 
+            background: #eff6ff; 
+            color: #1e40af; 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            font-size: 0.9rem; 
+            font-weight: 600;
+            border: 1px solid #dbeafe;
+        }
+        .keyword-tag {
+            font-size: 0.75rem;
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+        }
+        .count-info { margin-bottom: 10px; font-size: 0.9rem; color: #64748b; }
     </style>
 </head>
-<body class="text-slate-900 font-sans transition-colors duration-300">
+<body>
 
-    <header class="bg-indigo-900 text-white p-6 shadow-md">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div>
-                <h1 class="text-3xl font-extrabold tracking-tight">Rife Frequency Finder</h1>
-                <p class="text-indigo-200 text-sm">Precision Tone Generator</p>
-            </div>
-            <div class="flex items-center gap-4">
-                <a href="https://buy.stripe.com/7sYdRbglJcHk3s6fzQ8ww01" target="_blank" class="hidden md:block bg-amber-400 hover:bg-amber-300 text-amber-950 px-4 py-2 rounded-full text-sm font-black transition-all shadow-lg transform hover:scale-105">
-                    SUPPORT PROJECT
-                </a>
-                <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-indigo-800 border border-indigo-500 transition-all">
-                    <span id="darkIcon">🌙</span>
-                </button>
-            </div>
-        </div>
-    </header>
+    <div class="header">
+        <h1>Rife Frequency Explorer</h1>
+        <p>Consolidated Annotated Frequency List (CAFL)</p>
+    </div>
 
-    <main class="max-w-4xl mx-auto p-6">
-        <div class="mb-2">
-            <input type="text" id="searchInput" placeholder="Search conditions..." 
-                class="w-full p-5 rounded-2xl border-0 shadow-xl focus:ring-4 focus:ring-indigo-500/20 text-xl outline-none transition-all">
-        </div>
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-box" placeholder="Search conditions, keywords, or frequencies (e.g. '880')...">
+        <div id="count" class="count-info">Loading...</div>
+    </div>
 
-        <div class="flex items-center justify-between mb-6 px-1">
-            <div id="historyContainer" class="flex flex-wrap gap-2"></div>
-            <button onclick="clearHistory()" id="clearHistoryBtn" class="hidden text-xs font-bold text-slate-400 hover:text-red-500 uppercase tracking-widest ml-4 transition-colors">
-                Clear ×
-            </button>
+    <div id="results">
         </div>
-
-        <div class="bg-white p-5 rounded-2xl shadow-lg border border-slate-200 mb-8 flex flex-wrap gap-8 items-center">
-            <div class="flex flex-col">
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Live Volume</label>
-                <input type="range" id="volumeControl" min="0" max="0.5" step="0.01" value="0.1" class="w-36 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
-            </div>
-            <div class="flex flex-col">
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Duration</label>
-                <select id="durationControl" class="bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm font-bold outline-none">
-                    <option value="0" selected>Continuous</option>
-                    <option value="30">30 Seconds</option>
-                    <option value="60">1 Minute</option>
-                    <option value="600">10 Minutes</option>
-                    <option value="1200">20 Minutes</option>
-                    <option value="1800">30 Minutes</option>
-                </select>
-            </div>
-            <button onclick="stopAllTones()" class="ml-auto bg-red-50 text-red-600 px-6 py-3 rounded-xl font-black text-xs uppercase hover:bg-red-600 hover:text-white transition-all">
-                STOP AUDIO
-            </button>
-        </div>
-
-        <div id="results" class="grid gap-6">
-            <div class="text-center py-20 text-slate-400 font-medium italic">Connecting to database...</div>
-        </div>
-        
-        <div class="mt-12 p-8 bg-indigo-50 dark:bg-slate-800 rounded-3xl text-center border-2 border-dashed border-indigo-200 dark:border-slate-700">
-            <h3 class="text-xl font-bold mb-2">Want to contribute to the database?</h3>
-            <p class="text-slate-500 dark:text-slate-400 mb-6">Support the development and expansion of these frequencies.</p>
-            <a href="https://buy.stripe.com/YOUR_LINK_HERE" target="_blank" class="inline-block bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold hover:bg-indigo-500 transition-all shadow-xl">
-                Donate via Stripe
-            </a>
-        </div>
-    </main>
 
     <script>
-        let frequenciesData = [];
-        let audioCtx = null;
-        let activeOscillator = null;
-        let activeGain = null;
-        let currentlyPlayingBtn = null;
-        let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
+        let frequencyData = [];
 
-        const resultsContainer = document.getElementById('results');
-        const searchInput = document.getElementById('searchInput');
-        const volumeControl = document.getElementById('volumeControl');
-        const durationControl = document.getElementById('durationControl');
-        const historyContainer = document.getElementById('historyContainer');
-        const clearBtn = document.getElementById('clearHistoryBtn');
-
-        function toggleDarkMode() {
-            const isDark = document.body.classList.toggle('dark-mode');
-            document.getElementById('darkIcon').innerText = isDark ? '☀️' : '🌙';
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        }
-
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('darkIcon').innerText = '☀️';
-        }
-
-        function updateHistoryUI() {
-            if (searchHistory.length > 0) {
-                clearBtn.classList.remove('hidden');
-                historyContainer.innerHTML = searchHistory.map(term => `
-                    <button onclick="applySearch('${term}')" class="history-pill px-4 py-1.5 bg-slate-200 rounded-full text-[11px] font-bold shadow-sm transition-all">
-                        ${term}
-                    </button>
-                `).join('');
-            } else {
-                clearBtn.classList.add('hidden');
-                historyContainer.innerHTML = '';
-            }
-        }
-
-        function clearHistory() {
-            searchHistory = [];
-            localStorage.removeItem('searchHistory');
-            updateHistoryUI();
-        }
-
-        function applySearch(term) {
-            searchInput.value = term;
-            performSearch(term, false);
-        }
-
-        function performSearch(term, shouldSave = true) {
-            const lowerTerm = term.toLowerCase();
-            const filtered = frequenciesData.filter(item => 
-                item.name.toLowerCase().includes(lowerTerm) || 
-                (item.keywords && item.keywords.some(k => k.toLowerCase().includes(lowerTerm)))
-            );
-            renderResults(filtered);
-            if (shouldSave && term.trim().length > 2 && !searchHistory.includes(term.trim())) {
-                searchHistory.unshift(term.trim());
-                searchHistory = searchHistory.slice(0, 6);
-                localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
-                updateHistoryUI();
-            }
-        }
-
-        volumeControl.addEventListener('input', (e) => {
-            if (activeGain && audioCtx) {
-                activeGain.gain.setTargetAtTime(parseFloat(e.target.value), audioCtx.currentTime, 0.05);
-            }
-        });
-
+        // 1. Load the Data
         async function loadData() {
             try {
-                const response = await fetch('frequencies.json');
-                frequenciesData = await response.json();
-                renderResults(frequenciesData);
-                updateHistoryUI();
+                // If index.html and frequencies.json are in the same folder, use 'frequencies.json'
+                // If it's in public folder from root, use '/frequencies.json'
+                const response = await fetch('frequencies.json'); 
+                if (!response.ok) throw new Error("Could not find frequencies.json");
+                
+                frequencyData = await response.json();
+                updateUI(frequencyData);
             } catch (err) {
-                resultsContainer.innerHTML = `<div class="p-6 text-red-500">Error: Database not found in public folder.</div>`;
+                document.getElementById('results').innerHTML = `<p style="color:red">Error: ${err.message}</p>`;
             }
         }
 
-        function renderResults(data) {
-            resultsContainer.innerHTML = '';
-            data.slice(0, 100).forEach((item, itemIdx) => {
-                const card = document.createElement('div');
-                card.className = "bg-white p-6 rounded-2xl border border-slate-200 frequency-card";
-                card.innerHTML = `
-                    <div class="flex justify-between items-start mb-3">
-                        <h2 class="text-2xl font-bold text-slate-800">${item.name}</h2>
-                        <span class="text-[10px] font-black px-2 py-1 bg-slate-100 text-slate-500 rounded-full border border-slate-200 uppercase">${item.source}</span>
+        // 2. Render the Cards
+        function updateUI(items) {
+            const resultsDiv = document.getElementById('results');
+            const countDiv = document.getElementById('count');
+            
+            countDiv.innerText = `Showing ${items.length} conditions`;
+
+            if (items.length === 0) {
+                resultsDiv.innerHTML = '<div class="card">No matches found. Try a different term.</div>';
+                return;
+            }
+
+            resultsDiv.innerHTML = items.map(item => `
+                <div class="card">
+                    <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                        ${item.keywords.map(k => `<span class="keyword-tag">${k}</span>`).join('')}
                     </div>
-                    <p class="text-slate-500 italic mb-5 leading-relaxed text-sm">${item.description || ''}</p>
-                    <div class="flex flex-wrap gap-2">
-                        ${item.frequencies.map((f, fIdx) => `
-                            <button id="btn-${itemIdx}-${fIdx}" onclick="playTone(${f}, 'btn-${itemIdx}-${fIdx}')" class="px-5 py-2.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white rounded-xl text-sm font-black border border-indigo-100 transition-all">
-                                ${f} Hz
-                            </button>
-                        `).join('')}
+                    <h3>${item.name}</h3>
+                    ${item.description ? `<span class="description">${item.description}</span>` : ''}
+                    <div class="freq-container">
+                        ${item.frequencies.map(f => `<span class="freq-pill">${f} Hz</span>`).join('')}
                     </div>
-                `;
-                resultsContainer.appendChild(card);
-            });
+                </div>
+            `).join('');
         }
 
-        let searchTimeout;
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            const term = e.target.value;
-            performSearch(term, false);
-            searchTimeout = setTimeout(() => {
-                if(term.trim().length > 2) performSearch(term.trim(), true);
-            }, 1200);
+        // 3. Advanced Search Logic (Name + Keywords + Frequency)
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+            
+            const filtered = frequencyData.filter(item => {
+                // Check Name
+                const nameMatch = item.name.toLowerCase().includes(term);
+                
+                // Check Keywords
+                const keywordMatch = item.keywords.some(k => k.toLowerCase().includes(term));
+                
+                // Check Frequencies (searches the list of numbers as strings)
+                const freqMatch = item.frequencies.some(f => f.toString().includes(term));
+                
+                return nameMatch || keywordMatch || freqMatch;
+            });
+
+            updateUI(filtered);
         });
 
-        function playTone(freq, btnId) {
-            stopAllTones();
-            const clickedBtn = document.getElementById(btnId);
-            if (clickedBtn) {
-                clickedBtn.classList.add('btn-active');
-                currentlyPlayingBtn = clickedBtn;
-            }
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            activeOscillator = audioCtx.createOscillator();
-            activeGain = audioCtx.createGain();
-            activeOscillator.type = 'sine';
-            activeOscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            activeGain.gain.setValueAtTime(parseFloat(volumeControl.value), audioCtx.currentTime);
-            activeOscillator.connect(activeGain);
-            activeGain.connect(audioCtx.destination);
-            activeOscillator.start();
-            const d = parseInt(durationControl.value);
-            if (d > 0) {
-                activeGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + d);
-                activeOscillator.stop(audioCtx.currentTime + d);
-                setTimeout(() => { if (currentlyPlayingBtn === clickedBtn) stopAllTones(); }, d * 1000);
-            }
-        }
-
-        function stopAllTones() {
-            if (currentlyPlayingBtn) {
-                currentlyPlayingBtn.classList.remove('btn-active');
-                currentlyPlayingBtn = null;
-            }
-            if (activeOscillator) {
-                try { activeOscillator.stop(); } catch(e) {}
-                activeOscillator.disconnect();
-                activeOscillator = null;
-                activeGain = null;
-            }
-        }
+        // Start
         loadData();
     </script>
+
 </body>
 </html>
