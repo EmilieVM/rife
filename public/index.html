@@ -5,20 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rife Frequency Finder v2</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://js.stripe.com/v3/"></script>
     <style>
         .frequency-card { transition: all 0.2s ease; }
         .frequency-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        
-        /* Emerald Highlight for Active Tone */
         .btn-active { 
             background-color: #10b981 !important; 
             color: white !important;
             border-color: #059669 !important;
             box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
         }
-
-        /* Dark Mode Core Styles */
         body.dark-mode { background-color: #0f172a; color: #f8fafc; }
         .dark-mode .bg-white { background-color: #1e293b !important; color: #f8fafc; border-color: #334155; }
         .dark-mode .text-slate-800 { color: #f1f5f9; }
@@ -26,41 +21,39 @@
         .dark-mode input, .dark-mode select { background-color: #0f172a; color: white; border: 1px solid #475569; }
         .dark-mode .bg-indigo-50 { background-color: #312e81; color: #e0e7ff; border-color: #4338ca; }
         .dark-mode header { background-color: #1e1b4b; }
-        
-        /* High Contrast History Pills (Dark Mode) */
-        .dark-mode .history-pill { 
-            background-color: #312e81; 
-            color: #c7d2fe; 
-            border: 1px solid #4338ca;
-        }
+        .dark-mode .history-pill { background-color: #312e81; color: #c7d2fe; border: 1px solid #4338ca; }
         .dark-mode .history-pill:hover { background-color: #4338ca; color: white; }
-        .dark-mode .btn-active { background-color: #6366f1 !important; border-color: #818cf8 !important; }
     </style>
 </head>
 <body class="text-slate-900 font-sans transition-colors duration-300">
 
-    <header class="bg-indigo-900 text-white p-8 shadow-md">
+    <header class="bg-indigo-900 text-white p-6 shadow-md">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div>
-                <h1 class="text-4xl font-extrabold tracking-tight">Rife Frequency Finder</h1>
-                <p class="mt-2 text-indigo-100 text-lg">Precision Tone Generator</p>
+                <h1 class="text-3xl font-extrabold tracking-tight">Rife Frequency Finder</h1>
+                <p class="text-indigo-200 text-sm">Precision Tone Generator</p>
             </div>
-            <button onclick="toggleDarkMode()" class="p-3 rounded-full bg-indigo-800 hover:bg-indigo-700 border border-indigo-500 transition-all shadow-lg">
-                <span id="darkIcon">🌙</span>
-            </button>
+            <div class="flex items-center gap-4">
+                <a href="https://buy.stripe.com/7sYdRbglJcHk3s6fzQ8ww01" target="_blank" class="hidden md:block bg-amber-400 hover:bg-amber-300 text-amber-950 px-4 py-2 rounded-full text-sm font-black transition-all shadow-lg transform hover:scale-105">
+                    SUPPORT PROJECT
+                </a>
+                <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-indigo-800 border border-indigo-500 transition-all">
+                    <span id="darkIcon">🌙</span>
+                </button>
+            </div>
         </div>
     </header>
 
     <main class="max-w-4xl mx-auto p-6">
         <div class="mb-2">
-            <input type="text" id="searchInput" placeholder="Search conditions (e.g. 'Pain', 'Detox')..." 
+            <input type="text" id="searchInput" placeholder="Search conditions..." 
                 class="w-full p-5 rounded-2xl border-0 shadow-xl focus:ring-4 focus:ring-indigo-500/20 text-xl outline-none transition-all">
         </div>
 
         <div class="flex items-center justify-between mb-6 px-1">
             <div id="historyContainer" class="flex flex-wrap gap-2"></div>
             <button onclick="clearHistory()" id="clearHistoryBtn" class="hidden text-xs font-bold text-slate-400 hover:text-red-500 uppercase tracking-widest ml-4 transition-colors">
-                Clear History ×
+                Clear ×
             </button>
         </div>
 
@@ -80,13 +73,21 @@
                     <option value="1800">30 Minutes</option>
                 </select>
             </div>
-            <button onclick="stopAllTones()" class="ml-auto bg-red-50 text-red-600 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all shadow-sm">
+            <button onclick="stopAllTones()" class="ml-auto bg-red-50 text-red-600 px-6 py-3 rounded-xl font-black text-xs uppercase hover:bg-red-600 hover:text-white transition-all">
                 STOP AUDIO
             </button>
         </div>
 
         <div id="results" class="grid gap-6">
             <div class="text-center py-20 text-slate-400 font-medium italic">Connecting to database...</div>
+        </div>
+        
+        <div class="mt-12 p-8 bg-indigo-50 dark:bg-slate-800 rounded-3xl text-center border-2 border-dashed border-indigo-200 dark:border-slate-700">
+            <h3 class="text-xl font-bold mb-2">Want to contribute to the database?</h3>
+            <p class="text-slate-500 dark:text-slate-400 mb-6">Support the development and expansion of these frequencies.</p>
+            <a href="https://buy.stripe.com/YOUR_LINK_HERE" target="_blank" class="inline-block bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold hover:bg-indigo-500 transition-all shadow-xl">
+                Donate via Stripe
+            </a>
         </div>
     </main>
 
@@ -105,7 +106,6 @@
         const historyContainer = document.getElementById('historyContainer');
         const clearBtn = document.getElementById('clearHistoryBtn');
 
-        // Theme Toggle
         function toggleDarkMode() {
             const isDark = document.body.classList.toggle('dark-mode');
             document.getElementById('darkIcon').innerText = isDark ? '☀️' : '🌙';
@@ -117,12 +117,11 @@
             document.getElementById('darkIcon').innerText = '☀️';
         }
 
-        // History UI
         function updateHistoryUI() {
             if (searchHistory.length > 0) {
                 clearBtn.classList.remove('hidden');
                 historyContainer.innerHTML = searchHistory.map(term => `
-                    <button onclick="applySearch('${term}')" class="history-pill px-4 py-1.5 bg-slate-200 rounded-full text-[11px] font-bold shadow-sm transition-all hover:scale-105">
+                    <button onclick="applySearch('${term}')" class="history-pill px-4 py-1.5 bg-slate-200 rounded-full text-[11px] font-bold shadow-sm transition-all">
                         ${term}
                     </button>
                 `).join('');
@@ -158,37 +157,25 @@
             }
         }
 
-        // Live Volume Listener
         volumeControl.addEventListener('input', (e) => {
             if (activeGain && audioCtx) {
                 activeGain.gain.setTargetAtTime(parseFloat(e.target.value), audioCtx.currentTime, 0.05);
             }
         });
 
-        // Load Data - Simplified Path for Compatibility
         async function loadData() {
             try {
                 const response = await fetch('frequencies.json');
-                if (!response.ok) throw new Error('Network response was not ok');
                 frequenciesData = await response.json();
                 renderResults(frequenciesData);
                 updateHistoryUI();
             } catch (err) {
-                console.error("Database Error:", err);
-                resultsContainer.innerHTML = `
-                    <div class="p-8 text-red-500 bg-red-50 rounded-2xl border border-red-200 text-center">
-                        <p class="font-bold">Error: Could not load frequencies.json.</p>
-                        <p class="text-sm mt-2">Make sure frequencies.json is inside the <strong>public</strong> folder.</p>
-                    </div>`;
+                resultsContainer.innerHTML = `<div class="p-6 text-red-500">Error: Database not found in public folder.</div>`;
             }
         }
 
         function renderResults(data) {
             resultsContainer.innerHTML = '';
-            if (data.length === 0) {
-                resultsContainer.innerHTML = '<p class="text-center py-10 text-slate-400">No results found.</p>';
-                return;
-            }
             data.slice(0, 100).forEach((item, itemIdx) => {
                 const card = document.createElement('div');
                 card.className = "bg-white p-6 rounded-2xl border border-slate-200 frequency-card";
@@ -210,7 +197,6 @@
             });
         }
 
-        // Search Debounce logic
         let searchTimeout;
         searchInput.addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
@@ -221,7 +207,6 @@
             }, 1200);
         });
 
-        // Tone Engine
         function playTone(freq, btnId) {
             stopAllTones();
             const clickedBtn = document.getElementById(btnId);
@@ -238,7 +223,6 @@
             activeOscillator.connect(activeGain);
             activeGain.connect(audioCtx.destination);
             activeOscillator.start();
-            
             const d = parseInt(durationControl.value);
             if (d > 0) {
                 activeGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + d);
@@ -259,7 +243,6 @@
                 activeGain = null;
             }
         }
-        
         loadData();
     </script>
 </body>
